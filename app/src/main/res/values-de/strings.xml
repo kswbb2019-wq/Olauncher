@@ -143,4 +143,13 @@
     <string name="unable_to_open_shortcut">Verknüpfung kann nicht geöffnet werden</string>
     <string name="unable_to_open_app_info">App-Informationen können nicht geöffnet werden</string>
     <string name="bold_font">Fette Schrift</string>
+    <string name="theme_json">Theme-JSON</string>
+    <string name="theme_apply">Anwenden</string>
+    <string name="theme_reset">Zurücksetzen</string>
+    <string name="theme_applied">Theme angewendet</string>
+    <string name="theme_restored">Standardaussehen wiederhergestellt</string>
+    <string name="theme_error_syntax">Ungültiges JSON. Erwartet wird ein Objekt { … }</string>
+    <string name="theme_error_syntax_at">Ungültiges JSON in Zeile %1$d, Spalte %2$d</string>
+    <string name="theme_error_unknown_key">Unbekannter Schlüssel „%1$s“</string>
+    <string name="theme_error_invalid_value">„%1$s“ muss %2$s sein</string>
 </resources>

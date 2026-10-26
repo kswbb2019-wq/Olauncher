@@ -4,3 +4,4 @@
 - 2026-10-26: 접근성 서비스 packageNames 를 app.olauncher.custom(.debug) 로 갱신 — 두 번 탭 화면 잠금 복구
 - 2026-10-26: .github/workflows/build.yml 추가 — release APK 빌드 후 Secrets 의 고정 키스토어로 서명, MyLauncher.apk 아티팩트 업로드
 - 2026-10-26: build.yml 을 master push 시 빌드·서명 후 Release "latest" 에 launcher.apk 로 올리도록 변경 (고정 다운로드 주소)
+- 2026-10-26: 설정에 테마 JSON 추가 — 시계 · 홈 앱 · 앱 서랍의 크기 · 글꼴 · 정렬 · 여백 · 색 · 그림자를 빌드 없이 변경 (키 목록 THEME.md)

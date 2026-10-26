@@ -28,6 +28,7 @@ import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
+import app.olauncher.data.LauncherTheme
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.FragmentHomeBinding
 import app.olauncher.helper.appUsagePermissionGranted
@@ -53,6 +54,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     private lateinit var prefs: Prefs
     private lateinit var viewModel: MainViewModel
     private lateinit var deviceManager: DevicePolicyManager
+    private var theme = LauncherTheme.DEFAULT
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -70,9 +72,11 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         } ?: throw Exception("Invalid Activity")
 
         deviceManager = context?.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        theme = prefs.launcherTheme
 
         initObservers()
         setHomeAlignment(prefs.homeAlignment)
+        applyTheme()
         initSwipeTouchListener()
         initClickListeners()
     }
@@ -254,10 +258,12 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         binding.homeApp8.setOnLongClickListener(this)
     }
 
-    private fun setHomeAlignment(horizontalGravity: Int = prefs.homeAlignment) {
-        val verticalGravity = if (prefs.homeBottomAlignment) Gravity.BOTTOM else Gravity.CENTER_VERTICAL
+    private fun setHomeAlignment(alignment: Int = prefs.homeAlignment) {
+        val horizontalGravity = theme.homeAlign ?: alignment
+        val verticalGravity = theme.homePosition
+            ?: if (prefs.homeBottomAlignment) Gravity.BOTTOM else Gravity.CENTER_VERTICAL
         binding.homeAppsLayout.gravity = horizontalGravity or verticalGravity
-        binding.dateTimeLayout.gravity = horizontalGravity
+        binding.dateTimeLayout.gravity = theme.clockAlign ?: horizontalGravity
         binding.homeApp1.gravity = horizontalGravity
         binding.homeApp2.gravity = horizontalGravity
         binding.homeApp3.gravity = horizontalGravity
@@ -268,10 +274,41 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         binding.homeApp8.gravity = horizontalGravity
     }
 
+    private fun homeAppViews() = listOf(
+        binding.homeApp1, binding.homeApp2, binding.homeApp3, binding.homeApp4,
+        binding.homeApp5, binding.homeApp6, binding.homeApp7, binding.homeApp8,
+    )
+
+    // Theme JSON overrides; the view is inflated fresh each time home is shown
+    private fun applyTheme() {
+        theme.styleText(binding.clock, theme.clockSize, theme.clockFont)
+        theme.styleText(binding.date, theme.dateSize)
+        theme.styleText(binding.tvScreenTime)
+        homeAppViews().forEach { app ->
+            theme.styleText(app, theme.homeTextSize, theme.homeFont)
+            theme.homeAppSpacing?.let {
+                app.setPadding(app.paddingLeft, it.toInt().dpToPx(), app.paddingRight, it.toInt().dpToPx())
+            }
+        }
+        theme.homeMarginSide?.let {
+            val layout = binding.homeAppsLayout
+            layout.setPadding(it.toInt().dpToPx(), layout.paddingTop, it.toInt().dpToPx(), layout.paddingBottom)
+        }
+        if (theme.clockAlign == null && theme.clockMarginTop == null && theme.clockMarginSide == null) return
+        val params = binding.dateTimeLayout.layoutParams as FrameLayout.LayoutParams
+        theme.clockAlign?.let { params.gravity = it or Gravity.TOP }
+        theme.clockMarginTop?.let { params.topMargin = it.toInt().dpToPx() }
+        theme.clockMarginSide?.let {
+            params.leftMargin = it.toInt().dpToPx()
+            params.rightMargin = it.toInt().dpToPx()
+        }
+        binding.dateTimeLayout.layoutParams = params
+    }
+
     private fun populateDateTime() {
-        binding.dateTimeLayout.isVisible = prefs.dateTimeVisibility != Constants.DateTime.OFF
-        binding.clock.isVisible = Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
-        binding.date.isVisible = Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
+        binding.clock.isVisible = theme.clockVisible ?: Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
+        binding.date.isVisible = theme.dateVisible ?: Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
+        binding.dateTimeLayout.isVisible = binding.clock.isVisible || binding.date.isVisible
 
 //        var dateText = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
         val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())

@@ -22,10 +22,13 @@ import app.olauncher.BuildConfig
 import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.Constants
+import app.olauncher.data.LauncherTheme
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.DialogTextSizeBinding
+import app.olauncher.databinding.DialogThemeJsonBinding
 import app.olauncher.databinding.FragmentSettingsBinding
 import app.olauncher.helper.appUsagePermissionGranted
+import app.olauncher.helper.copyToClipboard
 import app.olauncher.helper.createDialog
 import app.olauncher.helper.getColorFromAttr
 import app.olauncher.helper.hideStatusBar
@@ -85,6 +88,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         populateAppThemeText()
         populateTextSize()
         populateBoldFont()
+        populateThemeJson()
         populateAlignment()
         populateStatusBar()
         populateDateTime()
@@ -117,6 +121,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
             R.id.appThemeText -> showAppThemeMenu(view, showSystem = false)
             R.id.textSizeValue -> showTextSizeDialog()
             R.id.boldFont -> toggleBoldFont()
+            R.id.themeJson -> showThemeJsonDialog()
 
             R.id.swipeLeftApp -> showAppListIfEnabled(Constants.FLAG_SET_SWIPE_LEFT_APP)
             R.id.swipeRightApp -> showAppListIfEnabled(Constants.FLAG_SET_SWIPE_RIGHT_APP)
@@ -182,6 +187,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         binding.appThemeText.setOnClickListener(this)
         binding.textSizeValue.setOnClickListener(this)
         binding.boldFont.setOnClickListener(this)
+        binding.themeJson.setOnClickListener(this)
 
         binding.share.setOnClickListener(this)
         binding.rate.setOnClickListener(this)
@@ -289,6 +295,60 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         }
         dialog.setOnDismissListener { applyTextSizeScale() }
         showDialog(dialog)
+    }
+
+    private fun showThemeJsonDialog() {
+        var content: DialogThemeJsonBinding? = null
+        val dialog = requireContext().createDialog(R.string.theme_json, R.string.close) { container ->
+            DialogThemeJsonBinding.inflate(layoutInflater, container, false).also { content = it }.root
+        }
+        content?.apply {
+            themeJsonInput.setText(prefs.themeJson)
+            themeJsonCopy.setOnClickListener {
+                requireContext().copyToClipboard(prefs.themeJson.ifBlank { "{}" })
+                requireContext().showToast(R.string.copied)
+            }
+            themeJsonReset.setOnClickListener {
+                themeJsonInput.setText("")
+                saveThemeJson("")
+            }
+            // The dialog stays open on errors so the text can be fixed
+            themeJsonApply.setOnClickListener {
+                if (saveThemeJson(themeJsonInput.text.toString())) dialog.dismiss()
+            }
+        }
+        showDialog(dialog)
+    }
+
+    /** Saves [json] if every key is valid; otherwise keeps the current theme and says what is wrong. */
+    private fun saveThemeJson(json: String): Boolean {
+        if (json.isBlank()) {
+            prefs.themeJson = ""
+            populateThemeJson()
+            requireContext().showToast(R.string.theme_restored)
+            return true
+        }
+        val error = when (val result = LauncherTheme.parse(json)) {
+            // Saved as typed so key order and layout survive copying it back out
+            is LauncherTheme.ParseResult.Ok -> {
+                prefs.themeJson = json.trim()
+                populateThemeJson()
+                requireContext().showToast(R.string.theme_applied)
+                return true
+            }
+
+            is LauncherTheme.ParseResult.SyntaxError ->
+                if (result.line == null) getString(R.string.theme_error_syntax)
+                else getString(R.string.theme_error_syntax_at, result.line, result.column)
+
+            is LauncherTheme.ParseResult.UnknownKey ->
+                getString(R.string.theme_error_unknown_key, result.key)
+
+            is LauncherTheme.ParseResult.InvalidValue ->
+                getString(R.string.theme_error_invalid_value, result.key, result.expected)
+        }
+        requireContext().showToast(error, Toast.LENGTH_LONG)
+        return false
     }
 
     // Prominent disclosure before sending the user to accessibility settings
@@ -547,6 +607,10 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
 
     private fun populateBoldFont() {
         binding.boldFont.text = getString(if (prefs.boldFont) R.string.on else R.string.off)
+    }
+
+    private fun populateThemeJson() {
+        binding.themeJson.text = getString(if (prefs.themeJson.isBlank()) R.string.off else R.string.on)
     }
 
     private fun populateScreenTimeOnOff() {
