@@ -22,6 +22,7 @@ import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
+import app.olauncher.data.LauncherTheme
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.FragmentAppDrawerBinding
 import app.olauncher.helper.deletePinnedShortcut
@@ -39,6 +40,7 @@ import app.olauncher.helper.uninstall
 class AppDrawerFragment : BaseFragment() {
 
     private lateinit var prefs: Prefs
+    private var theme = LauncherTheme.DEFAULT
     private lateinit var adapter: AppDrawerAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
     private var searchTextView: TextView? = null
@@ -67,6 +69,7 @@ class AppDrawerFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prefs = Prefs(requireContext())
+        theme = prefs.launcherTheme
         arguments?.let {
             flag = it.getInt(Constants.Key.FLAG, Constants.FLAG_LAUNCH_APP)
             canRename = it.getBoolean(Constants.Key.RENAME, false)
@@ -86,7 +89,7 @@ class AppDrawerFragment : BaseFragment() {
             binding.search.queryHint = "Please select an app"
         try {
             searchTextView = binding.search.findViewById(R.id.search_src_text)
-            searchTextView?.gravity = prefs.appLabelAlignment
+            searchTextView?.gravity = theme.drawerAlign ?: prefs.appLabelAlignment
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -149,7 +152,7 @@ class AppDrawerFragment : BaseFragment() {
     private fun initAdapter() {
         adapter = AppDrawerAdapter(
             flag,
-            prefs.appLabelAlignment,
+            theme.drawerAlign ?: prefs.appLabelAlignment,
             appClickListener = { appModel ->
                 viewModel.selectedApp(appModel, flag)
                 if (flag == Constants.FLAG_LAUNCH_APP || flag == Constants.FLAG_HIDDEN_APPS)
@@ -233,7 +236,8 @@ class AppDrawerFragment : BaseFragment() {
             privateSpaceSettingsListener = {
                 viewModel.openPrivateSpaceSettings()
                 findNavController().popBackStack(R.id.mainFragment, false)
-            }
+            },
+            theme = theme,
         )
 
         linearLayoutManager = object : LinearLayoutManager(requireContext()) {

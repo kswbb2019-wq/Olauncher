@@ -173,4 +173,13 @@
     <string name="invalid_shortcut">Invalid shortcut</string>
     <string name="shortcut_not_found">Shortcut not found</string>
     <string name="unable_to_open_shortcut">Unable to open shortcut</string>
+    <string name="theme_json">Theme JSON</string>
+    <string name="theme_apply">Apply</string>
+    <string name="theme_reset">Reset</string>
+    <string name="theme_applied">Theme applied</string>
+    <string name="theme_restored">Default look restored</string>
+    <string name="theme_error_syntax">Invalid JSON. It must be one object { … }</string>
+    <string name="theme_error_syntax_at">Invalid JSON at line %1$d, column %2$d</string>
+    <string name="theme_error_unknown_key">Unknown key \"%1$s\"</string>
+    <string name="theme_error_invalid_value">\"%1$s\" must be %2$s</string>
 </resources>
