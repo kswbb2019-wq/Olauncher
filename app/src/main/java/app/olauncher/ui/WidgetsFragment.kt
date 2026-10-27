@@ -27,6 +27,8 @@ import app.olauncher.databinding.FragmentWidgetsBinding
 import app.olauncher.helper.dpToPx
 import app.olauncher.helper.widgetHost
 import java.util.Collections
+import kotlin.math.ceil
+import kotlin.math.floor
 
 class WidgetsFragment : BaseFragment() {
 
@@ -82,7 +84,7 @@ class WidgetsFragment : BaseFragment() {
     private fun populateWidgets() {
         val container = binding.widgetsContainer
         container.removeAllViews()
-        val maxWidth = resources.configuration.screenWidthDp - 48
+        val screenWidth = resources.configuration.screenWidthDp - 48
         // The month calendar has no provider info; ids whose app is gone or unavailable are skipped but kept
         val widgets = prefs.widgetIds.mapNotNull { id ->
             if (id == MonthCalendarView.WIDGET_ID) id to null
@@ -91,7 +93,8 @@ class WidgetsFragment : BaseFragment() {
         val widgetContext = widgetContext()
 
         widgets.forEachIndexed { index, (widgetId, info) ->
-            val (width, height) = widgetSize(widgetId, info, maxWidth)
+            val limits = sizeLimits(info, screenWidth)
+            val (width, height) = widgetSize(widgetId, info, limits)
             val widgetView = if (info == null) monthCalendar() else widgetHost.createView(widgetContext, widgetId, info).apply {
                 @Suppress("DEPRECATION")
                 updateAppWidgetSize(Bundle(), width, height, width, height)
@@ -104,7 +107,7 @@ class WidgetsFragment : BaseFragment() {
             }
             if (editing) row.addView(
                 editControls(
-                    widgetId, label, width, height, maxWidth,
+                    widgetId, label, width, height, limits,
                     previousId = widgets.getOrNull(index - 1)?.first,
                     nextId = widgets.getOrNull(index + 1)?.first,
                 )
@@ -132,21 +135,49 @@ class WidgetsFragment : BaseFragment() {
         else android.R.style.Theme_DeviceDefault_Light
     )
 
-    /** Width and height in dp: the saved size, or what the widget asks for, kept on screen. */
-    private fun widgetSize(widgetId: Int, info: AppWidgetProviderInfo?, maxWidth: Int): Pair<Int, Int> {
-        val saved = prefs.getWidgetSize(widgetId)
-        val width = saved?.first ?: DEFAULT_WIDTH
-        val height = saved?.second ?: info?.let { defaultHeight(it) } ?: CALENDAR_HEIGHT
-        return clampSize(width, height, maxWidth)
+    /** Allowed width and height in dp. */
+    private class SizeLimits(val width: IntRange, val height: IntRange)
+
+    // The widget's own resize range, which One UI Home enforces. Samsung widgets given a size
+    // outside it show "Inhalt kann nicht angezeigt werden" instead of their content
+    private fun sizeLimits(info: AppWidgetProviderInfo?, screenWidth: Int): SizeLimits {
+        val maxWidth = maxOf(MIN_SIZE, screenWidth)
+        if (info == null) return SizeLimits(MIN_SIZE..maxWidth, MIN_SIZE..MAX_HEIGHT)
+        val (preferredWidth, preferredHeight) = preferredSize(info)
+        val newer = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val width = if (info.resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL == 0)
+            preferredWidth.coerceIn(MIN_SIZE, maxWidth).let { it..it }
+        else limit(info.minResizeWidth, if (newer) info.maxResizeWidth else 0, maxWidth)
+        val height = if (info.resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL == 0)
+            preferredHeight.coerceIn(MIN_SIZE, MAX_HEIGHT).let { it..it }
+        else limit(info.minResizeHeight, if (newer) info.maxResizeHeight else 0, MAX_HEIGHT)
+        return SizeLimits(width, height)
     }
 
-    private fun clampSize(width: Int, height: Int, maxWidth: Int) =
-        width.coerceIn(MIN_SIZE, maxOf(MIN_SIZE, maxWidth)) to height.coerceIn(MIN_SIZE, MAX_HEIGHT)
+    // minPx and maxPx come from the widget, a max of 0 meaning no limit
+    private fun limit(minPx: Int, maxPx: Int, cap: Int): IntRange {
+        val density = resources.displayMetrics.density
+        val max = if (maxPx > 0) minOf(floor(maxPx / density).toInt(), cap) else cap
+        return maxOf(MIN_SIZE, ceil(minPx / density).toInt()).coerceAtMost(max)..max
+    }
 
     // Newer widgets give a preferred size in home screen cells, older ones only a minimum in px
-    private fun defaultHeight(info: AppWidgetProviderInfo): Int {
-        val cells = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) info.targetCellHeight else 0
-        return maxOf((info.minHeight / resources.displayMetrics.density).toInt(), cells * CELL_HEIGHT)
+    private fun preferredSize(info: AppWidgetProviderInfo): Pair<Int, Int> {
+        val newer = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val density = resources.displayMetrics.density
+        val cellsWide = if (newer) info.targetCellWidth else 0
+        val cellsHigh = if (newer) info.targetCellHeight else 0
+        return maxOf(ceil(info.minWidth / density).toInt(), cellsWide * CELL_SIZE) to
+                maxOf(ceil(info.minHeight / density).toInt(), cellsHigh * CELL_SIZE)
+    }
+
+    /** Width and height in dp: the saved size, or the widget's preferred one, within its limits. */
+    private fun widgetSize(widgetId: Int, info: AppWidgetProviderInfo?, limits: SizeLimits): Pair<Int, Int> {
+        val saved = prefs.getWidgetSize(widgetId)
+        val preferred = info?.let { preferredSize(it) } ?: (CALENDAR_WIDTH to CALENDAR_HEIGHT)
+        val width = saved?.first ?: preferred.first
+        val height = saved?.second ?: preferred.second
+        return width.coerceIn(limits.width) to height.coerceIn(limits.height)
     }
 
     private fun monthCalendar() = MonthCalendarView(requireContext()).apply {
@@ -163,7 +194,7 @@ class WidgetsFragment : BaseFragment() {
         label: String,
         width: Int,
         height: Int,
-        maxWidth: Int,
+        limits: SizeLimits,
         previousId: Int?,
         nextId: Int?,
     ): View = LinearLayout(requireContext()).apply {
@@ -182,10 +213,10 @@ class WidgetsFragment : BaseFragment() {
         val widthLabel = getString(R.string.widgets_width)
         val heightLabel = getString(R.string.widgets_height)
         addView(buttonRow(
-            controlButton("$widthLabel −", width > MIN_SIZE) { resizeWidget(widgetId, width - SIZE_STEP, height, maxWidth) },
-            controlButton("$widthLabel +", width < maxWidth) { resizeWidget(widgetId, width + SIZE_STEP, height, maxWidth) },
-            controlButton("$heightLabel −", height > MIN_SIZE) { resizeWidget(widgetId, width, height - SIZE_STEP, maxWidth) },
-            controlButton("$heightLabel +", height < MAX_HEIGHT) { resizeWidget(widgetId, width, height + SIZE_STEP, maxWidth) },
+            controlButton("$widthLabel −", width > limits.width.first) { resizeWidget(widgetId, width - SIZE_STEP, height, limits) },
+            controlButton("$widthLabel +", width < limits.width.last) { resizeWidget(widgetId, width + SIZE_STEP, height, limits) },
+            controlButton("$heightLabel −", height > limits.height.first) { resizeWidget(widgetId, width, height - SIZE_STEP, limits) },
+            controlButton("$heightLabel +", height < limits.height.last) { resizeWidget(widgetId, width, height + SIZE_STEP, limits) },
         ))
     }
 
@@ -209,8 +240,8 @@ class WidgetsFragment : BaseFragment() {
         populateWidgets()
     }
 
-    private fun resizeWidget(widgetId: Int, width: Int, height: Int, maxWidth: Int) {
-        prefs.setWidgetSize(widgetId, clampSize(width, height, maxWidth))
+    private fun resizeWidget(widgetId: Int, width: Int, height: Int, limits: SizeLimits) {
+        prefs.setWidgetSize(widgetId, width.coerceIn(limits.width) to height.coerceIn(limits.height))
         populateWidgets()
     }
 
@@ -265,8 +296,8 @@ class WidgetsFragment : BaseFragment() {
 
     companion object {
         // Sizes in dp
-        private const val DEFAULT_WIDTH = 640
-        private const val CELL_HEIGHT = 96
+        private const val CELL_SIZE = 96
+        private const val CALENDAR_WIDTH = 640
         private const val CALENDAR_HEIGHT = 400
         private const val MIN_SIZE = 48
         private const val MAX_HEIGHT = 1600
