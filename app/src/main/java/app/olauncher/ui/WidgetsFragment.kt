@@ -161,15 +161,20 @@ class WidgetsFragment : BaseFragment() {
         return maxOf(MIN_SIZE, ceil(minPx / density).toInt()).coerceAtMost(max)..max
     }
 
-    // Newer widgets give a preferred size in home screen cells, older ones only a minimum in px
+    // Samsung widgets start at the default size they declare (minWidth × minHeight), since other
+    // sizes can leave them showing "Inhalt kann nicht angezeigt werden". Other newer widgets give
+    // a preferred size in home screen cells, older ones only a minimum in px
     private fun preferredSize(info: AppWidgetProviderInfo): Pair<Int, Int> {
-        val newer = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useCells = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !isSamsungWidget(info)
         val density = resources.displayMetrics.density
-        val cellsWide = if (newer) info.targetCellWidth else 0
-        val cellsHigh = if (newer) info.targetCellHeight else 0
+        val cellsWide = if (useCells) info.targetCellWidth else 0
+        val cellsHigh = if (useCells) info.targetCellHeight else 0
         return maxOf(ceil(info.minWidth / density).toInt(), cellsWide * CELL_SIZE) to
                 maxOf(ceil(info.minHeight / density).toInt(), cellsHigh * CELL_SIZE)
     }
+
+    private fun isSamsungWidget(info: AppWidgetProviderInfo) =
+        info.provider.packageName.let { it.startsWith("com.samsung.") || it.startsWith("com.sec.") }
 
     /** Width and height in dp: the saved size, or the widget's preferred one, within its limits. */
     private fun widgetSize(widgetId: Int, info: AppWidgetProviderInfo?, limits: SizeLimits): Pair<Int, Int> {
@@ -208,6 +213,10 @@ class WidgetsFragment : BaseFragment() {
         addView(buttonRow(
             controlButton("↑", previousId != null) { previousId?.let { swapWidgets(widgetId, it) } },
             controlButton("↓", nextId != null) { nextId?.let { swapWidgets(widgetId, it) } },
+            controlButton(getString(R.string.widgets_default_size), prefs.getWidgetSize(widgetId) != null) {
+                prefs.setWidgetSize(widgetId, null)
+                populateWidgets()
+            },
             controlButton(getString(R.string.widgets_remove)) { removeWidget(widgetId) },
         ))
         val widthLabel = getString(R.string.widgets_width)

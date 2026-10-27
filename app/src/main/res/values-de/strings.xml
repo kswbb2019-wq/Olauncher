@@ -159,6 +159,7 @@
     <string name="widgets_remove">Entfernen</string>
     <string name="widgets_width">Breite</string>
     <string name="widgets_height">Höhe</string>
+    <string name="widgets_default_size">Standardgröße</string>
     <string name="month_calendar">Monatskalender</string>
     <string name="calendar_show_events">Tippen, um Termine anzuzeigen</string>
 </resources>
