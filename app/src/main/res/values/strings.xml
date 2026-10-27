@@ -182,4 +182,9 @@
     <string name="theme_error_syntax_at">Invalid JSON at line %1$d, column %2$d</string>
     <string name="theme_error_unknown_key">Unknown key \"%1$s\"</string>
     <string name="theme_error_invalid_value">\"%1$s\" must be %2$s</string>
+    <string name="widgets_add">Add widget</string>
+    <string name="widgets_edit">Edit</string>
+    <string name="widgets_done">Done</string>
+    <string name="widgets_empty">No widgets yet</string>
+    <string name="widgets_remove">Remove %1$s</string>
 </resources>

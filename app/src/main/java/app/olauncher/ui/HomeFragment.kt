@@ -39,7 +39,6 @@ import app.olauncher.helper.getUserHandleFromString
 import app.olauncher.helper.isPackageInstalled
 import app.olauncher.helper.openAlarmApp
 import app.olauncher.helper.openCalendar
-import app.olauncher.helper.openCameraApp
 import app.olauncher.helper.openDialerApp
 import app.olauncher.helper.setPlainWallpaperByTheme
 import app.olauncher.helper.showToast
@@ -557,17 +556,12 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         )
     }
 
-    private fun openSwipeLeftApp() {
-        if (!prefs.swipeLeftEnabled) return
-        launchAppOrShortcut(
-            appName = prefs.appNameSwipeLeft,
-            packageName = prefs.appPackageSwipeLeft,
-            activityClassName = prefs.appActivityClassNameSwipeLeft,
-            shortcutId = prefs.shortcutIdSwipeLeft,
-            isShortcut = prefs.isShortcutSwipeLeft,
-            userString = prefs.appUserSwipeLeft,
-            fallback = { openCameraApp(requireContext()) }
-        )
+    private fun showWidgets() {
+        try {
+            findNavController().navigate(R.id.action_mainFragment_to_widgetsFragment)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun showAppList(flag: Int, rename: Boolean = false, includeHiddenApps: Boolean = false) {
@@ -679,7 +673,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         return object : OnSwipeTouchListener(context) {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                openSwipeLeftApp()
+                showWidgets()
             }
 
             override fun onSwipeRight() {
@@ -727,7 +721,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         return object : ViewSwipeTouchListener(context, view) {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                openSwipeLeftApp()
+                showWidgets()
             }
 
             override fun onSwipeRight() {
