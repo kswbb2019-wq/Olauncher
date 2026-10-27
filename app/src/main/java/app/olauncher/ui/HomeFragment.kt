@@ -39,7 +39,7 @@ import app.olauncher.helper.getUserHandleFromString
 import app.olauncher.helper.isPackageInstalled
 import app.olauncher.helper.openAlarmApp
 import app.olauncher.helper.openCalendar
-import app.olauncher.helper.openDialerApp
+import app.olauncher.helper.openCameraApp
 import app.olauncher.helper.setPlainWallpaperByTheme
 import app.olauncher.helper.showToast
 import app.olauncher.listener.OnSwipeTouchListener
@@ -543,16 +543,16 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         )
     }
 
-    private fun openSwipeRightApp() {
-        if (!prefs.swipeRightEnabled) return
+    private fun openSwipeLeftApp() {
+        if (!prefs.swipeLeftEnabled) return
         launchAppOrShortcut(
-            appName = prefs.appNameSwipeRight,
-            packageName = prefs.appPackageSwipeRight,
-            activityClassName = prefs.appActivityClassNameRight,
-            shortcutId = prefs.shortcutIdSwipeRight,
-            isShortcut = prefs.isShortcutSwipeRight,
-            userString = prefs.appUserSwipeRight,
-            fallback = { openDialerApp(requireContext()) }
+            appName = prefs.appNameSwipeLeft,
+            packageName = prefs.appPackageSwipeLeft,
+            activityClassName = prefs.appActivityClassNameSwipeLeft,
+            shortcutId = prefs.shortcutIdSwipeLeft,
+            isShortcut = prefs.isShortcutSwipeLeft,
+            userString = prefs.appUserSwipeLeft,
+            fallback = { openCameraApp(requireContext()) }
         )
     }
 
@@ -673,12 +673,12 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         return object : OnSwipeTouchListener(context) {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                showWidgets()
+                openSwipeLeftApp()
             }
 
             override fun onSwipeRight() {
                 super.onSwipeRight()
-                openSwipeRightApp()
+                showWidgets()
             }
 
             override fun onSwipeUp() {
@@ -721,12 +721,12 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         return object : ViewSwipeTouchListener(context, view) {
             override fun onSwipeLeft() {
                 super.onSwipeLeft()
-                showWidgets()
+                openSwipeLeftApp()
             }
 
             override fun onSwipeRight() {
                 super.onSwipeRight()
-                openSwipeRightApp()
+                showWidgets()
             }
 
             override fun onSwipeUp() {

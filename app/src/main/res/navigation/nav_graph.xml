@@ -27,10 +27,10 @@
         <action
             android:id="@+id/action_mainFragment_to_widgetsFragment"
             app:destination="@id/widgetsFragment"
-            app:enterAnim="@anim/slide_in_right"
+            app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/fade_exit"
             app:popEnterAnim="@anim/fade_enter"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:popExitAnim="@anim/slide_out_left" />
     </fragment>
 
     <fragment

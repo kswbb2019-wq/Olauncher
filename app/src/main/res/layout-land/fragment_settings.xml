@@ -420,13 +420,11 @@
                     android:text="@string/gestures"
                     android:textColor="?attr/primaryColor" />
 
-                <!-- Swipe left opens the widget screen, so this app choice is unused -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:orientation="horizontal">
 
                     <TextView
                         style="@style/TextSmall"
@@ -451,11 +449,13 @@
                         android:padding="8dp" />
                 </LinearLayout>
 
+                <!-- Swipe right opens the widget screen, so this app choice is unused -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <TextView
                         style="@style/TextSmall"

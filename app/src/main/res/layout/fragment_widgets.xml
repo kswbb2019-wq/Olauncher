@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Widget screen, opened by swiping left on home. Swipe right or back to return -->
-<app.olauncher.ui.SwipeRightLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Widget screen, opened by swiping right on home. Swipe left or back to return -->
+<app.olauncher.ui.SwipeLeftLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widgetsRoot"
     android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <!-- Width is capped in code so widgets do not stretch across a landscape tablet -->
+            <!-- Each widget row sizes itself from the saved or default size, see WidgetsFragment -->
             <LinearLayout
                 android:id="@+id/widgetsContainer"
                 android:layout_width="match_parent"
@@ -69,4 +69,4 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-</app.olauncher.ui.SwipeRightLayout>
+</app.olauncher.ui.SwipeLeftLayout>
