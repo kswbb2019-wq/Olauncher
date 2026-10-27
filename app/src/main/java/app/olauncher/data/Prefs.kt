@@ -1,5 +1,6 @@
 package app.olauncher.data
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.view.Gravity
@@ -38,6 +39,8 @@ class Prefs(context: Context) {
     private val TEXT_SIZE_SCALE = "TEXT_SIZE_SCALE"
     private val BOLD_FONT = "BOLD_FONT"
     private val THEME_JSON = "THEME_JSON"
+    private val WIDGET_IDS = "WIDGET_IDS"
+    private val PENDING_WIDGET_ID = "PENDING_WIDGET_ID"
     private val PRO_MESSAGE_SHOWN = "PRO_MESSAGE_SHOWN"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
     private val SCREEN_TIME_LAST_UPDATED = "SCREEN_TIME_LAST_UPDATED"
@@ -211,6 +214,16 @@ class Prefs(context: Context) {
 
     val launcherTheme: LauncherTheme
         get() = LauncherTheme.load(themeJson)
+
+    // Widget screen ids, top to bottom
+    var widgetIds: List<Int>
+        get() = prefs.getString(WIDGET_IDS, "").toString().split(",").mapNotNull { it.toIntOrNull() }
+        set(value) = prefs.edit { putString(WIDGET_IDS, value.joinToString(",")).apply() }
+
+    // Id waiting on the bind permission or the widget's setup screen
+    var pendingWidgetId: Int
+        get() = prefs.getInt(PENDING_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+        set(value) = prefs.edit { putInt(PENDING_WIDGET_ID, value).apply() }
 
     var proMessageShown: Boolean
         get() = prefs.getBoolean(PRO_MESSAGE_SHOWN, false)

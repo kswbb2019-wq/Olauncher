@@ -2,6 +2,8 @@ package app.olauncher
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -44,6 +46,7 @@ import app.olauncher.helper.shareApp
 import app.olauncher.helper.showLauncherSelector
 import app.olauncher.helper.showMessageDialog
 import app.olauncher.helper.showToast
+import app.olauncher.helper.widgetHost
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -344,7 +347,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun backToHomeScreen() {
-        if (viewModel.isPrivateSpaceToggling) return
+        if (viewModel.isPrivateSpaceToggling || viewModel.isWidgetSetupOpen) return
         messageDialog?.dismiss()
         if (navController.currentDestination?.id != R.id.mainFragment)
             navController.popBackStack(R.id.mainFragment, false)
@@ -398,6 +401,56 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    // Widgets: the bind permission and setup screens report back in onActivityResult
+
+    fun addWidget(provider: AppWidgetProviderInfo) {
+        val widgetId = widgetHost().allocateAppWidgetId()
+        prefs.pendingWidgetId = widgetId
+        if (AppWidgetManager.getInstance(this).bindAppWidgetIdIfAllowed(widgetId, provider.profile, provider.provider, null)) {
+            configureWidget(widgetId)
+            return
+        }
+        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
+            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider.provider)
+            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, provider.profile)
+        try {
+            viewModel.isWidgetSetupOpen = true
+            startActivityForResult(intent, Constants.REQUEST_CODE_BIND_WIDGET)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            finishAddingWidget(widgetId, false)
+        }
+    }
+
+    private fun configureWidget(widgetId: Int) {
+        val info = AppWidgetManager.getInstance(this).getAppWidgetInfo(widgetId)
+        val setupOptional = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && info != null &&
+                info.widgetFeatures and AppWidgetProviderInfo.WIDGET_FEATURE_CONFIGURATION_OPTIONAL != 0
+        if (info?.configure == null || setupOptional) {
+            finishAddingWidget(widgetId, true)
+            return
+        }
+        try {
+            viewModel.isWidgetSetupOpen = true
+            widgetHost().startAppWidgetConfigureActivityForResult(
+                this, widgetId, 0, Constants.REQUEST_CODE_CONFIGURE_WIDGET, null
+            )
+        } catch (e: Exception) {
+            // Keep it; such widgets usually offer their setup on tap
+            e.printStackTrace()
+            finishAddingWidget(widgetId, true)
+        }
+    }
+
+    private fun finishAddingWidget(widgetId: Int, added: Boolean) {
+        viewModel.isWidgetSetupOpen = false
+        prefs.pendingWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
+        if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) return
+        if (added) prefs.widgetIds = prefs.widgetIds + widgetId
+        else widgetHost().deleteAppWidgetId(widgetId)
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -411,6 +464,16 @@ class MainActivity : AppCompatActivity() {
                 if (resultCode == Activity.RESULT_OK)
                     resetLauncherViaFakeActivity()
             }
+
+            Constants.REQUEST_CODE_BIND_WIDGET -> {
+                if (resultCode == Activity.RESULT_OK)
+                    configureWidget(prefs.pendingWidgetId)
+                else
+                    finishAddingWidget(prefs.pendingWidgetId, false)
+            }
+
+            Constants.REQUEST_CODE_CONFIGURE_WIDGET ->
+                finishAddingWidget(prefs.pendingWidgetId, resultCode == Activity.RESULT_OK)
         }
     }
 }
