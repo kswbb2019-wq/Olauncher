@@ -41,6 +41,7 @@ class Prefs(context: Context) {
     private val THEME_JSON = "THEME_JSON"
     private val WIDGET_IDS = "WIDGET_IDS"
     private val PENDING_WIDGET_ID = "PENDING_WIDGET_ID"
+    private val WIDGET_SIZE = "WIDGET_SIZE_"
     private val PRO_MESSAGE_SHOWN = "PRO_MESSAGE_SHOWN"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
     private val SCREEN_TIME_LAST_UPDATED = "SCREEN_TIME_LAST_UPDATED"
@@ -224,6 +225,18 @@ class Prefs(context: Context) {
     var pendingWidgetId: Int
         get() = prefs.getInt(PENDING_WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
         set(value) = prefs.edit { putInt(PENDING_WIDGET_ID, value).apply() }
+
+    // Width and height in dp, saved once the widget is resized
+    fun getWidgetSize(widgetId: Int): Pair<Int, Int>? =
+        prefs.getString(WIDGET_SIZE + widgetId, null)
+            ?.split(",")?.mapNotNull { it.toIntOrNull() }
+            ?.takeIf { it.size == 2 }
+            ?.let { it[0] to it[1] }
+
+    fun setWidgetSize(widgetId: Int, size: Pair<Int, Int>?) = prefs.edit {
+        if (size == null) remove(WIDGET_SIZE + widgetId)
+        else putString(WIDGET_SIZE + widgetId, "${size.first},${size.second}")
+    }
 
     var proMessageShown: Boolean
         get() = prefs.getBoolean(PRO_MESSAGE_SHOWN, false)

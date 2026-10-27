@@ -186,5 +186,7 @@
     <string name="widgets_edit">Edit</string>
     <string name="widgets_done">Done</string>
     <string name="widgets_empty">No widgets yet</string>
-    <string name="widgets_remove">Remove %1$s</string>
+    <string name="widgets_remove">Remove</string>
+    <string name="widgets_width">Width</string>
+    <string name="widgets_height">Height</string>
 </resources>

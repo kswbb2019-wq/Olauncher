@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
 import androidx.navigation.fragment.findNavController
 import app.olauncher.MainActivity
 import app.olauncher.R
@@ -20,7 +20,7 @@ import app.olauncher.data.Prefs
 import app.olauncher.databinding.FragmentWidgetsBinding
 import app.olauncher.helper.dpToPx
 import app.olauncher.helper.widgetHost
-import kotlin.math.min
+import java.util.Collections
 
 class WidgetsFragment : BaseFragment() {
 
@@ -43,7 +43,7 @@ class WidgetsFragment : BaseFragment() {
         widgetHost = requireContext().widgetHost()
         widgetManager = AppWidgetManager.getInstance(requireContext())
 
-        binding.widgetsRoot.onSwipeRight = { findNavController().popBackStack() }
+        binding.widgetsRoot.onSwipeLeft = { findNavController().popBackStack() }
         binding.addWidget.setOnClickListener { showWidgetPicker() }
         binding.editWidgets.setOnClickListener {
             editing = !editing
@@ -70,22 +70,28 @@ class WidgetsFragment : BaseFragment() {
     private fun populateWidgets() {
         val container = binding.widgetsContainer
         container.removeAllViews()
-        val columnWidth = min(resources.displayMetrics.widthPixels - 48.dpToPx(), 640.dpToPx())
-        container.updateLayoutParams { width = columnWidth }
+        val maxWidth = resources.configuration.screenWidthDp - 48
+        // Ids whose app is gone or unavailable are skipped but kept
+        val widgets = prefs.widgetIds.mapNotNull { id -> widgetManager.getAppWidgetInfo(id)?.let { id to it } }
 
-        for (widgetId in prefs.widgetIds) {
-            val info = widgetManager.getAppWidgetInfo(widgetId) ?: continue // app uninstalled
-            val height = widgetHeight(info)
+        widgets.forEachIndexed { index, (widgetId, info) ->
+            val (width, height) = widgetSize(widgetId, info, maxWidth)
             val hostView = widgetHost.createView(requireContext(), widgetId, info)
-            val density = resources.displayMetrics.density
-            val widthDp = (columnWidth / density).toInt()
-            val heightDp = (height / density).toInt()
             @Suppress("DEPRECATION")
-            hostView.updateAppWidgetSize(Bundle(), widthDp, heightDp, widthDp, heightDp)
+            hostView.updateAppWidgetSize(Bundle(), width, height, width, height)
 
-            val row = LinearLayout(requireContext()).apply { orientation = LinearLayout.VERTICAL }
-            if (editing) row.addView(removeButton(widgetId, info))
-            row.addView(hostView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, height))
+            val row = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER_HORIZONTAL
+            }
+            if (editing) row.addView(
+                editControls(
+                    widgetId, info, width, height, maxWidth,
+                    previousId = widgets.getOrNull(index - 1)?.first,
+                    nextId = widgets.getOrNull(index + 1)?.first,
+                )
+            )
+            row.addView(hostView, LinearLayout.LayoutParams(width.dpToPx(), height.dpToPx()))
             container.addView(
                 row,
                 LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -100,22 +106,85 @@ class WidgetsFragment : BaseFragment() {
         binding.editWidgets.setText(if (editing) R.string.widgets_done else R.string.widgets_edit)
     }
 
-    // Newer widgets give a preferred size in home screen cells, older ones only a minimum
-    private fun widgetHeight(info: AppWidgetProviderInfo): Int {
-        val cells = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) info.targetCellHeight else 0
-        return maxOf(info.minHeight, cells * 96.dpToPx())
+    /** Width and height in dp: the saved size, or what the widget asks for, kept on screen. */
+    private fun widgetSize(widgetId: Int, info: AppWidgetProviderInfo, maxWidth: Int): Pair<Int, Int> {
+        val saved = prefs.getWidgetSize(widgetId)
+        val width = saved?.first ?: DEFAULT_WIDTH
+        val height = saved?.second ?: defaultHeight(info)
+        return clampSize(width, height, maxWidth)
     }
 
-    private fun removeButton(widgetId: Int, info: AppWidgetProviderInfo): TextView =
+    private fun clampSize(width: Int, height: Int, maxWidth: Int) =
+        width.coerceIn(MIN_SIZE, maxOf(MIN_SIZE, maxWidth)) to height.coerceIn(MIN_SIZE, MAX_HEIGHT)
+
+    // Newer widgets give a preferred size in home screen cells, older ones only a minimum in px
+    private fun defaultHeight(info: AppWidgetProviderInfo): Int {
+        val cells = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) info.targetCellHeight else 0
+        return maxOf((info.minHeight / resources.displayMetrics.density).toInt(), cells * CELL_HEIGHT)
+    }
+
+    private fun editControls(
+        widgetId: Int,
+        info: AppWidgetProviderInfo,
+        width: Int,
+        height: Int,
+        maxWidth: Int,
+        previousId: Int?,
+        nextId: Int?,
+    ): View = LinearLayout(requireContext()).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_HORIZONTAL
+        setPadding(0, 0, 0, 8.dpToPx())
+
+        addView(TextView(requireContext(), null, 0, R.style.TextSmall).apply {
+            text = "${info.loadLabel(requireContext().packageManager)} · $width × $height"
+        })
+        addView(buttonRow(
+            controlButton("↑", previousId != null) { previousId?.let { swapWidgets(widgetId, it) } },
+            controlButton("↓", nextId != null) { nextId?.let { swapWidgets(widgetId, it) } },
+            controlButton(getString(R.string.widgets_remove)) { removeWidget(widgetId) },
+        ))
+        val widthLabel = getString(R.string.widgets_width)
+        val heightLabel = getString(R.string.widgets_height)
+        addView(buttonRow(
+            controlButton("$widthLabel −", width > MIN_SIZE) { resizeWidget(widgetId, width - SIZE_STEP, height, maxWidth) },
+            controlButton("$widthLabel +", width < maxWidth) { resizeWidget(widgetId, width + SIZE_STEP, height, maxWidth) },
+            controlButton("$heightLabel −", height > MIN_SIZE) { resizeWidget(widgetId, width, height - SIZE_STEP, maxWidth) },
+            controlButton("$heightLabel +", height < MAX_HEIGHT) { resizeWidget(widgetId, width, height + SIZE_STEP, maxWidth) },
+        ))
+    }
+
+    private fun buttonRow(vararg buttons: View) = LinearLayout(requireContext()).apply {
+        orientation = LinearLayout.HORIZONTAL
+        buttons.forEach { addView(it) }
+    }
+
+    private fun controlButton(label: String, enabled: Boolean = true, onClick: () -> Unit) =
         TextView(requireContext(), null, 0, R.style.TextSmallBold).apply {
-            text = getString(R.string.widgets_remove, info.loadLabel(requireContext().packageManager))
-            setPadding(0, 8.dpToPx(), 0, 8.dpToPx())
-            setOnClickListener {
-                widgetHost.deleteAppWidgetId(widgetId)
-                prefs.widgetIds = prefs.widgetIds - widgetId
-                populateWidgets()
-            }
+            text = label
+            setPadding(12.dpToPx(), 8.dpToPx(), 12.dpToPx(), 8.dpToPx())
+            alpha = if (enabled) 1f else 0.3f
+            if (enabled) setOnClickListener { onClick() }
         }
+
+    private fun swapWidgets(first: Int, second: Int) {
+        val widgetIds = prefs.widgetIds.toMutableList()
+        Collections.swap(widgetIds, widgetIds.indexOf(first), widgetIds.indexOf(second))
+        prefs.widgetIds = widgetIds
+        populateWidgets()
+    }
+
+    private fun resizeWidget(widgetId: Int, width: Int, height: Int, maxWidth: Int) {
+        prefs.setWidgetSize(widgetId, clampSize(width, height, maxWidth))
+        populateWidgets()
+    }
+
+    private fun removeWidget(widgetId: Int) {
+        widgetHost.deleteAppWidgetId(widgetId)
+        prefs.widgetIds = prefs.widgetIds - widgetId
+        prefs.setWidgetSize(widgetId, null)
+        populateWidgets()
+    }
 
     private fun showWidgetPicker() {
         val packageManager = requireContext().packageManager
@@ -143,5 +212,14 @@ class WidgetsFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        // Sizes in dp
+        private const val DEFAULT_WIDTH = 640
+        private const val CELL_HEIGHT = 96
+        private const val MIN_SIZE = 48
+        private const val MAX_HEIGHT = 1600
+        private const val SIZE_STEP = 40
     }
 }

@@ -9,15 +9,15 @@ import android.widget.FrameLayout
 import kotlin.math.abs
 
 /**
- * Reports a horizontal swipe to the right, even when it starts on a child
+ * Reports a horizontal swipe to the left, even when it starts on a child
  * such as a widget. Vertical drags are left to the children.
  */
-class SwipeRightLayout @JvmOverloads constructor(
+class SwipeLeftLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
 ) : FrameLayout(context, attrs) {
 
-    var onSwipeRight: () -> Unit = {}
+    var onSwipeLeft: () -> Unit = {}
 
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     private val swipeDistance = 64 * resources.displayMetrics.density
@@ -32,7 +32,7 @@ class SwipeRightLayout @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val dx = event.x - downX
+                val dx = downX - event.x
                 return dx > touchSlop * 2 && dx > abs(event.y - downY) * 2
             }
         }
@@ -47,7 +47,7 @@ class SwipeRightLayout @JvmOverloads constructor(
                 downY = event.y
             }
 
-            MotionEvent.ACTION_UP -> if (event.x - downX > swipeDistance) onSwipeRight()
+            MotionEvent.ACTION_UP -> if (downX - event.x > swipeDistance) onSwipeLeft()
         }
         return true
     }

@@ -156,5 +156,7 @@
     <string name="widgets_edit">Bearbeiten</string>
     <string name="widgets_done">Fertig</string>
     <string name="widgets_empty">Noch keine Widgets</string>
-    <string name="widgets_remove">%1$s entfernen</string>
+    <string name="widgets_remove">Entfernen</string>
+    <string name="widgets_width">Breite</string>
+    <string name="widgets_height">Höhe</string>
 </resources>
