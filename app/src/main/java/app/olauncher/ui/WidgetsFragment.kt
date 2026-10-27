@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.os.Build
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -73,10 +74,11 @@ class WidgetsFragment : BaseFragment() {
         val maxWidth = resources.configuration.screenWidthDp - 48
         // Ids whose app is gone or unavailable are skipped but kept
         val widgets = prefs.widgetIds.mapNotNull { id -> widgetManager.getAppWidgetInfo(id)?.let { id to it } }
+        val widgetContext = widgetContext()
 
         widgets.forEachIndexed { index, (widgetId, info) ->
             val (width, height) = widgetSize(widgetId, info, maxWidth)
-            val hostView = widgetHost.createView(requireContext(), widgetId, info)
+            val hostView = widgetHost.createView(widgetContext, widgetId, info)
             @Suppress("DEPRECATION")
             hostView.updateAppWidgetSize(Bundle(), width, height, width, height)
 
@@ -105,6 +107,14 @@ class WidgetsFragment : BaseFragment() {
         binding.editWidgets.isVisible = hasWidgets
         binding.editWidgets.setText(if (editing) R.string.widgets_done else R.string.widgets_edit)
     }
+
+    // The activity's inflater swaps in AppCompat views, whose overridden setters RemoteViews
+    // refuses ("Couldn't add widget"), so widgets inflate from the app context with the system theme
+    private fun widgetContext() = ContextThemeWrapper(
+        requireContext().applicationContext,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) android.R.style.Theme_DeviceDefault_DayNight
+        else android.R.style.Theme_DeviceDefault_Light
+    )
 
     /** Width and height in dp: the saved size, or what the widget asks for, kept on screen. */
     private fun widgetSize(widgetId: Int, info: AppWidgetProviderInfo, maxWidth: Int): Pair<Int, Int> {
