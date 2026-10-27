@@ -10,3 +10,4 @@
 - 2026-10-27: 위젯이 "Widget konnte nicht hinzugefügt werden" 로 표시되던 문제 수정 — AppCompat 대신 시스템 테마 컨텍스트로 위젯 표시
 - 2026-10-27: 위젯 화면에 런처 자체 월 달력 추가 — 기기 캘린더(삼성 캘린더) 일정 표시, 날짜/일정 탭은 삼성 캘린더로 열기, 길게 눌러 새 일정 (READ_CALENDAR 권한 추가)
 - 2026-10-27: 위젯 크기를 위젯이 정한 최소/최대 · 크기 조절 방향 범위 안으로 제한, 기본 크기는 위젯 권장 크기 ("Inhalt kann nicht angezeigt werden" 대응)
+- 2026-10-27: 삼성 위젯은 위젯이 정한 기본 크기(minWidth × minHeight)로 추가, 편집 모드에 Standardgröße(기본 크기로 되돌리기) 추가
