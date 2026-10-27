@@ -189,4 +189,6 @@
     <string name="widgets_remove">Remove</string>
     <string name="widgets_width">Width</string>
     <string name="widgets_height">Height</string>
+    <string name="month_calendar">Month calendar</string>
+    <string name="calendar_show_events">Tap to show events</string>
 </resources>
