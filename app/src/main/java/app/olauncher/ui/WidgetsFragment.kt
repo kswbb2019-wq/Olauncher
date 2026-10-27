@@ -1,8 +1,10 @@
 package app.olauncher.ui
 
+import android.Manifest
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.ContextThemeWrapper
@@ -12,10 +14,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import app.olauncher.MainActivity
+import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.FragmentWidgetsBinding
@@ -28,7 +33,13 @@ class WidgetsFragment : BaseFragment() {
     private lateinit var prefs: Prefs
     private lateinit var widgetHost: AppWidgetHost
     private lateinit var widgetManager: AppWidgetManager
+    private val viewModel: MainViewModel by activityViewModels()
     private var editing = false
+
+    private val calendarPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        viewModel.isWidgetSetupOpen = false
+        if (_binding != null) populateWidgets()
+    }
 
     private var _binding: FragmentWidgetsBinding? = null
     private val binding get() = _binding!!
@@ -72,15 +83,20 @@ class WidgetsFragment : BaseFragment() {
         val container = binding.widgetsContainer
         container.removeAllViews()
         val maxWidth = resources.configuration.screenWidthDp - 48
-        // Ids whose app is gone or unavailable are skipped but kept
-        val widgets = prefs.widgetIds.mapNotNull { id -> widgetManager.getAppWidgetInfo(id)?.let { id to it } }
+        // The month calendar has no provider info; ids whose app is gone or unavailable are skipped but kept
+        val widgets = prefs.widgetIds.mapNotNull { id ->
+            if (id == MonthCalendarView.WIDGET_ID) id to null
+            else widgetManager.getAppWidgetInfo(id)?.let { id to it }
+        }
         val widgetContext = widgetContext()
 
         widgets.forEachIndexed { index, (widgetId, info) ->
             val (width, height) = widgetSize(widgetId, info, maxWidth)
-            val hostView = widgetHost.createView(widgetContext, widgetId, info)
-            @Suppress("DEPRECATION")
-            hostView.updateAppWidgetSize(Bundle(), width, height, width, height)
+            val widgetView = if (info == null) monthCalendar() else widgetHost.createView(widgetContext, widgetId, info).apply {
+                @Suppress("DEPRECATION")
+                updateAppWidgetSize(Bundle(), width, height, width, height)
+            }
+            val label = info?.loadLabel(requireContext().packageManager) ?: getString(R.string.month_calendar)
 
             val row = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.VERTICAL
@@ -88,12 +104,12 @@ class WidgetsFragment : BaseFragment() {
             }
             if (editing) row.addView(
                 editControls(
-                    widgetId, info, width, height, maxWidth,
+                    widgetId, label, width, height, maxWidth,
                     previousId = widgets.getOrNull(index - 1)?.first,
                     nextId = widgets.getOrNull(index + 1)?.first,
                 )
             )
-            row.addView(hostView, LinearLayout.LayoutParams(width.dpToPx(), height.dpToPx()))
+            row.addView(widgetView, LinearLayout.LayoutParams(width.dpToPx(), height.dpToPx()))
             container.addView(
                 row,
                 LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -117,10 +133,10 @@ class WidgetsFragment : BaseFragment() {
     )
 
     /** Width and height in dp: the saved size, or what the widget asks for, kept on screen. */
-    private fun widgetSize(widgetId: Int, info: AppWidgetProviderInfo, maxWidth: Int): Pair<Int, Int> {
+    private fun widgetSize(widgetId: Int, info: AppWidgetProviderInfo?, maxWidth: Int): Pair<Int, Int> {
         val saved = prefs.getWidgetSize(widgetId)
         val width = saved?.first ?: DEFAULT_WIDTH
-        val height = saved?.second ?: defaultHeight(info)
+        val height = saved?.second ?: info?.let { defaultHeight(it) } ?: CALENDAR_HEIGHT
         return clampSize(width, height, maxWidth)
     }
 
@@ -133,9 +149,18 @@ class WidgetsFragment : BaseFragment() {
         return maxOf((info.minHeight / resources.displayMetrics.density).toInt(), cells * CELL_HEIGHT)
     }
 
+    private fun monthCalendar() = MonthCalendarView(requireContext()).apply {
+        onPermissionNeeded = { requestCalendarPermission() }
+    }
+
+    private fun requestCalendarPermission() {
+        viewModel.isWidgetSetupOpen = true
+        calendarPermission.launch(Manifest.permission.READ_CALENDAR)
+    }
+
     private fun editControls(
         widgetId: Int,
-        info: AppWidgetProviderInfo,
+        label: String,
         width: Int,
         height: Int,
         maxWidth: Int,
@@ -147,7 +172,7 @@ class WidgetsFragment : BaseFragment() {
         setPadding(0, 0, 0, 8.dpToPx())
 
         addView(TextView(requireContext(), null, 0, R.style.TextSmall).apply {
-            text = "${info.loadLabel(requireContext().packageManager)} · $width × $height"
+            text = "$label · $width × $height"
         })
         addView(buttonRow(
             controlButton("↑", previousId != null) { previousId?.let { swapWidgets(widgetId, it) } },
@@ -190,7 +215,7 @@ class WidgetsFragment : BaseFragment() {
     }
 
     private fun removeWidget(widgetId: Int) {
-        widgetHost.deleteAppWidgetId(widgetId)
+        if (widgetId != MonthCalendarView.WIDGET_ID) widgetHost.deleteAppWidgetId(widgetId)
         prefs.widgetIds = prefs.widgetIds - widgetId
         prefs.setWidgetSize(widgetId, null)
         populateWidgets()
@@ -210,13 +235,27 @@ class WidgetsFragment : BaseFragment() {
                 "$appLabel: ${info.loadLabel(packageManager)}" to info
             }
             .sortedBy { it.first.lowercase() }
+        // The launcher's own month calendar comes first, once
+        val calendar: List<Pair<String, AppWidgetProviderInfo?>> =
+            if (MonthCalendarView.WIDGET_ID in prefs.widgetIds) emptyList()
+            else listOf("${getString(R.string.app_name)}: ${getString(R.string.month_calendar)}" to null)
+        val entries = calendar + providers
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.widgets_add)
-            .setItems(providers.map { it.first }.toTypedArray()) { _, which ->
-                (requireActivity() as MainActivity).addWidget(providers[which].second)
+            .setItems(entries.map { it.first }.toTypedArray()) { _, which ->
+                if (!isAdded) return@setItems
+                val provider = entries[which].second
+                if (provider == null) addMonthCalendar()
+                else (requireActivity() as MainActivity).addWidget(provider)
                 if (_binding != null) populateWidgets()
             }
             .show()
+    }
+
+    private fun addMonthCalendar() {
+        prefs.widgetIds = prefs.widgetIds + MonthCalendarView.WIDGET_ID
+        if (requireContext().checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED)
+            requestCalendarPermission()
     }
 
     override fun onDestroyView() {
@@ -228,6 +267,7 @@ class WidgetsFragment : BaseFragment() {
         // Sizes in dp
         private const val DEFAULT_WIDTH = 640
         private const val CELL_HEIGHT = 96
+        private const val CALENDAR_HEIGHT = 400
         private const val MIN_SIZE = 48
         private const val MAX_HEIGHT = 1600
         private const val SIZE_STEP = 40
