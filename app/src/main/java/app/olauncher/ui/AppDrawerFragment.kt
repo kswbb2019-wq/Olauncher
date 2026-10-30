@@ -13,6 +13,8 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
+import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,6 +36,8 @@ import app.olauncher.helper.openAppInfo
 import app.olauncher.helper.openSearch
 import app.olauncher.helper.openUrl
 import app.olauncher.helper.showKeyboard
+import app.olauncher.helper.showMessageDialog
+import app.olauncher.helper.showTextInputDialog
 import app.olauncher.helper.showToast
 import app.olauncher.helper.uninstall
 
@@ -48,6 +52,8 @@ class AppDrawerFragment : BaseFragment() {
 
     private var flag = Constants.FLAG_LAUNCH_APP
     private var canRename = false
+    // Home slot (1-8) being picked for, which can also take a folder
+    private var homeSlot: Int? = null
     private var currentAppList: List<AppModel>? = null
     private var currentPrivateSpaceApps: List<AppModel>? = null
     private var currentPrivateSpaceLocked: Boolean = true
@@ -74,6 +80,9 @@ class AppDrawerFragment : BaseFragment() {
             flag = it.getInt(Constants.Key.FLAG, Constants.FLAG_LAUNCH_APP)
             canRename = it.getBoolean(Constants.Key.RENAME, false)
         }
+        homeSlot = flag.takeIf { it in Constants.FLAG_SET_HOME_APP_1..Constants.FLAG_SET_HOME_APP_8 }
+        // Renaming would change the app hidden under the folder, not the folder
+        if (homeSlot?.let { prefs.getFolder(it) } != null) canRename = false
 
         initViews()
         initSearch()
@@ -93,6 +102,9 @@ class AppDrawerFragment : BaseFragment() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        binding.createFolder.isVisible = homeSlot != null
+        binding.createFolder.gravity = theme.drawerAlign ?: prefs.appLabelAlignment
+        theme.styleText(binding.createFolder, theme.drawerTextSize, theme.drawerFont)
     }
 
     private fun initSearch() {
@@ -154,11 +166,14 @@ class AppDrawerFragment : BaseFragment() {
             flag,
             theme.drawerAlign ?: prefs.appLabelAlignment,
             appClickListener = { appModel ->
-                viewModel.selectedApp(appModel, flag)
-                if (flag == Constants.FLAG_LAUNCH_APP || flag == Constants.FLAG_HIDDEN_APPS)
-                    findNavController().popBackStack(R.id.mainFragment, false)
-                else
-                    findNavController().popBackStack()
+                confirmReplacingFolder {
+                    homeSlot?.let { prefs.setFolder(it, null) }
+                    viewModel.selectedApp(appModel, flag)
+                    if (flag == Constants.FLAG_LAUNCH_APP || flag == Constants.FLAG_HIDDEN_APPS)
+                        findNavController().popBackStack(R.id.mainFragment, false)
+                    else
+                        findNavController().popBackStack()
+                }
             },
             appInfoListener = {
                 openAppInfo(
@@ -311,7 +326,36 @@ class AppDrawerFragment : BaseFragment() {
         adapter.filter.filter(binding.search.query)
     }
 
+    /** Runs [action] now, or after a confirmation when it replaces the folder on this home slot. */
+    private fun confirmReplacingFolder(action: () -> Unit) {
+        val slot = homeSlot
+        if (slot == null || prefs.getFolder(slot) == null) return action()
+        requireContext().showMessageDialog(
+            R.string.folder_replace_title,
+            R.string.folder_replace_message,
+            R.string.folder_replace
+        ) { if (isAdded) action() }
+    }
+
+    // Name first, then the apps; the new folder replaces the slot's folder only once saved
+    private fun createFolder(slot: Int) {
+        requireContext().showTextInputDialog(
+            title = R.string.folder_name,
+            action = R.string.folder_next,
+            blankMessage = R.string.folder_name_needed,
+        ) { name ->
+            if (!isAdded) return@showTextInputDialog
+            findNavController().navigate(
+                R.id.action_appListFragment_to_folderAppsFragment,
+                bundleOf(FolderAppsFragment.LOCATION to slot, FolderAppsFragment.NAME to name)
+            )
+        }
+    }
+
     private fun initClickListeners() {
+        binding.createFolder.setOnClickListener {
+            homeSlot?.let { slot -> confirmReplacingFolder { createFolder(slot) } }
+        }
         binding.appRename.setOnClickListener {
             val name = binding.search.query.toString().trim()
             if (name.isEmpty()) {

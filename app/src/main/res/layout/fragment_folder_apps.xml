@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Checks apps for a folder, with search. Layout follows fragment_app_drawer.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/primaryShadeDarkColor"
+    android:orientation="vertical"
+    tools:context=".ui.FolderAppsFragment">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:layout_weight="0.1" />
+
+    <EditText
+        android:id="@+id/folderSearch"
+        style="@style/TextLarge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:hint="@string/folder_search"
+        android:imeOptions="actionSearch"
+        android:importantForAutofill="no"
+        android:inputType="textNoSuggestions"
+        android:paddingHorizontal="24dp"
+        android:singleLine="true" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.06" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/folderAppsList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fadingEdgeLength="24dp"
+        android:requiresFadingEdge="vertical" />
+
+    <TextView
+        android:id="@+id/folderAppsDone"
+        style="@style/TextSmallBold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:background="?attr/selectableItemBackground"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="@string/folder_done" />
+</LinearLayout>

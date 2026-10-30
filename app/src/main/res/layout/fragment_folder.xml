@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Folder opened from a home slot: name, apps, then small actions. Back or swipe down returns -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingTop="56dp"
+    android:paddingBottom="48dp"
+    android:scrollbars="none"
+    tools:context=".ui.FolderFragment">
+
+    <!-- Gravity and side padding follow the home screen, set in FolderFragment -->
+    <LinearLayout
+        android:id="@+id/folderContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <TextView
+            android:id="@+id/folderName"
+            style="@style/TextLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:alpha="0.6"
+            android:paddingVertical="@dimen/home_app_padding_vertical"
+            tools:text="Arbeit" />
+
+        <LinearLayout
+            android:id="@+id/folderApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/folderEmpty"
+            style="@style/TextSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="8dp"
+            android:text="@string/folder_empty"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/folderActions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/folderAddApps"
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:focusable="true"
+                android:padding="8dp"
+                android:text="@string/folder_add_apps" />
+
+            <TextView
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="·"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/folderRename"
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:focusable="true"
+                android:padding="8dp"
+                android:text="@string/rename" />
+
+            <TextView
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="·"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/folderDelete"
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:focusable="true"
+                android:padding="8dp"
+                android:text="@string/folder_delete" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

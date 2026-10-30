@@ -162,4 +162,20 @@
     <string name="widgets_default_size">Standardgröße</string>
     <string name="month_calendar">Monatskalender</string>
     <string name="calendar_show_events">Tippen, um Termine anzuzeigen</string>
+    <string name="folder_create">+ Ordner erstellen</string>
+    <string name="folder_name">Ordnername</string>
+    <string name="folder_next">Weiter</string>
+    <string name="folder_name_needed">Gib einen Ordnernamen ein</string>
+    <string name="folder_search">Apps suchen</string>
+    <string name="folder_pick_needed">Wähle mindestens eine App</string>
+    <string name="folder_done">Fertig</string>
+    <string name="folder_add_apps">Apps hinzufügen</string>
+    <string name="folder_delete">Ordner löschen</string>
+    <string name="folder_delete_message">Diesen Ordner löschen? Die Apps bleiben installiert.</string>
+    <string name="folder_delete_confirm">Löschen</string>
+    <string name="folder_replace_title">Ordner ersetzen</string>
+    <string name="folder_replace_message">Der Ordner an dieser Stelle wird gelöscht.</string>
+    <string name="folder_replace">Ersetzen</string>
+    <string name="folder_remove_app">Aus Ordner entfernen</string>
+    <string name="folder_empty">Keine Apps in diesem Ordner</string>
 </resources>
