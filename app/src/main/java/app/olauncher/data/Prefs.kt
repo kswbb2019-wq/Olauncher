@@ -6,6 +6,8 @@ import android.content.SharedPreferences
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import org.json.JSONException
+import org.json.JSONObject
 
 class Prefs(context: Context) {
     private val PREFS_FILENAME = "app.olauncher"
@@ -42,6 +44,7 @@ class Prefs(context: Context) {
     private val WIDGET_IDS = "WIDGET_IDS"
     private val PENDING_WIDGET_ID = "PENDING_WIDGET_ID"
     private val WIDGET_SIZE = "WIDGET_SIZE_"
+    private val HOME_FOLDERS = "HOME_FOLDERS"
     private val PRO_MESSAGE_SHOWN = "PRO_MESSAGE_SHOWN"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
     private val SCREEN_TIME_LAST_UPDATED = "SCREEN_TIME_LAST_UPDATED"
@@ -236,6 +239,24 @@ class Prefs(context: Context) {
     fun setWidgetSize(widgetId: Int, size: Pair<Int, Int>?) = prefs.edit {
         if (size == null) remove(WIDGET_SIZE + widgetId)
         else putString(WIDGET_SIZE + widgetId, "${size.first},${size.second}")
+    }
+
+    // Home slot (1-8) to folder, as JSON. A folder shows instead of the slot's app,
+    // whose own prefs are left as they are
+    private fun folders(): JSONObject = try {
+        JSONObject(prefs.getString(HOME_FOLDERS, null) ?: "{}")
+    } catch (e: JSONException) {
+        JSONObject()
+    }
+
+    fun getFolder(location: Int): HomeFolder? =
+        folders().optJSONObject(location.toString())?.let { HomeFolder.fromJson(it) }
+
+    fun setFolder(location: Int, folder: HomeFolder?) {
+        val folders = folders()
+        if (folder == null) folders.remove(location.toString())
+        else folders.put(location.toString(), folder.toJson())
+        prefs.edit { putString(HOME_FOLDERS, folders.toString()) }
     }
 
     var proMessageShown: Boolean

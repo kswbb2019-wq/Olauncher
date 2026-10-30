@@ -8,6 +8,9 @@ import android.content.res.Configuration
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -423,6 +426,13 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         isShortcut: Boolean,
         shortcutId: String?,
     ): Boolean {
+        // A folder in this slot shows instead of the app, which stays saved underneath
+        textView.tag.toString().toIntOrNull()?.let { prefs.getFolder(it) }?.let { folder ->
+            textView.text = SpannableStringBuilder(folder.name)
+                .append(" ›", RelativeSizeSpan(0.7f), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            return true
+        }
+
         // Get user handle for the app/shortcut
         val userHandle = getUserHandleFromString(requireContext(), userString)
 
@@ -533,6 +543,10 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     }
 
     private fun homeAppClicked(location: Int) {
+        if (prefs.getFolder(location) != null) {
+            openFolder(location)
+            return
+        }
         launchAppOrShortcut(
             appName = prefs.getAppName(location),
             packageName = prefs.getAppPackage(location),
@@ -554,6 +568,17 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
             userString = prefs.appUserSwipeLeft,
             fallback = { openCameraApp(requireContext()) }
         )
+    }
+
+    private fun openFolder(location: Int) {
+        try {
+            findNavController().navigate(
+                R.id.action_mainFragment_to_folderFragment,
+                bundleOf(FolderFragment.LOCATION to location)
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun showWidgets() {

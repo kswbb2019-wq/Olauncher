@@ -15,6 +15,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import app.olauncher.data.Prefs
 import app.olauncher.databinding.DialogBaseBinding
+import app.olauncher.databinding.DialogTextInputBinding
 
 /**
  * Shows a popup menu hanging off the end edge of this view.
@@ -115,6 +116,37 @@ fun Context.showMessageDialog(
     onAction: () -> Unit,
 ): OlDialog {
     val dialog = createDialog(title, action, message = message, onAction = onAction)
+    dialog.showRespectingStatusBar()
+    return dialog
+}
+
+/** Asks for one line of text, such as a folder name, and passes it on unless blank. */
+fun Context.showTextInputDialog(
+    @StringRes title: Int,
+    @StringRes action: Int,
+    initial: String = "",
+    @StringRes blankMessage: Int = 0,
+    onText: (String) -> Unit,
+): OlDialog {
+    var input: DialogTextInputBinding? = null
+    val dialog = createDialog(
+        title = title,
+        action = action,
+        onAction = {
+            val text = input?.textInput?.text?.toString()?.trim().orEmpty()
+            if (text.isNotEmpty()) onText(text)
+            else if (blankMessage != 0) showToast(getString(blankMessage))
+        },
+    ) { container ->
+        DialogTextInputBinding.inflate(LayoutInflater.from(container.context), container, false)
+            .also { input = it }.root
+    }
+    input?.textInput?.apply {
+        setText(initial)
+        setSelection(text.length)
+        requestFocus()
+    }
+    dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
     dialog.showRespectingStatusBar()
     return dialog
 }

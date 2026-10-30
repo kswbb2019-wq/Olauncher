@@ -192,4 +192,20 @@
     <string name="widgets_default_size">Default size</string>
     <string name="month_calendar">Month calendar</string>
     <string name="calendar_show_events">Tap to show events</string>
+    <string name="folder_create">+ Create folder</string>
+    <string name="folder_name">Folder name</string>
+    <string name="folder_next">Next</string>
+    <string name="folder_name_needed">Enter a folder name</string>
+    <string name="folder_search">Search apps</string>
+    <string name="folder_pick_needed">Pick at least one app</string>
+    <string name="folder_done">Done</string>
+    <string name="folder_add_apps">Add apps</string>
+    <string name="folder_delete">Delete folder</string>
+    <string name="folder_delete_message">Delete this folder? Its apps stay installed.</string>
+    <string name="folder_delete_confirm">Delete</string>
+    <string name="folder_replace_title">Replace folder</string>
+    <string name="folder_replace_message">The folder in this spot will be deleted.</string>
+    <string name="folder_replace">Replace</string>
+    <string name="folder_remove_app">Remove from folder</string>
+    <string name="folder_empty">No apps in this folder</string>
 </resources>
