@@ -89,6 +89,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         populateTextSize()
         populateBoldFont()
         populateThemeJson()
+        populateTasks()
         populateAlignment()
         populateStatusBar()
         populateDateTime()
@@ -122,6 +123,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
             R.id.textSizeValue -> showTextSizeDialog()
             R.id.boldFont -> toggleBoldFont()
             R.id.themeJson -> showThemeJsonDialog()
+            R.id.tasksSettings -> findNavController().navigate(R.id.action_settingsFragment_to_taskSettingsFragment)
 
             R.id.swipeLeftApp -> showAppListIfEnabled(Constants.FLAG_SET_SWIPE_LEFT_APP)
             R.id.swipeRightApp -> showAppListIfEnabled(Constants.FLAG_SET_SWIPE_RIGHT_APP)
@@ -188,6 +190,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
         binding.textSizeValue.setOnClickListener(this)
         binding.boldFont.setOnClickListener(this)
         binding.themeJson.setOnClickListener(this)
+        binding.tasksSettings.setOnClickListener(this)
 
         binding.share.setOnClickListener(this)
         binding.rate.setOnClickListener(this)
@@ -607,6 +610,10 @@ class SettingsFragment : BaseFragment(), View.OnClickListener, View.OnLongClickL
 
     private fun populateBoldFont() {
         binding.boldFont.text = getString(if (prefs.boldFont) R.string.on else R.string.off)
+    }
+
+    private fun populateTasks() {
+        binding.tasksSettings.text = getString(TaskSettingsFragment.statusText(prefs))
     }
 
     private fun populateThemeJson() {

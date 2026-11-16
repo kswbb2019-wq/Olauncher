@@ -208,4 +208,25 @@
     <string name="folder_replace">Replace</string>
     <string name="folder_remove_app">Remove from folder</string>
     <string name="folder_empty">No apps in this folder</string>
+    <string name="tasks">Tasks</string>
+    <string name="tasks_sync">GitHub sync</string>
+    <string name="tasks_owner">Owner</string>
+    <string name="tasks_repo">Repository</string>
+    <string name="tasks_branch">Branch</string>
+    <string name="tasks_path">File path</string>
+    <string name="tasks_token">Access token</string>
+    <string name="tasks_token_hint">Paste a token</string>
+    <string name="tasks_token_saved_hint">Saved · leave empty to keep it</string>
+    <string name="tasks_token_remove">Remove token</string>
+    <string name="tasks_save">Save</string>
+    <string name="tasks_saved">Saved</string>
+    <string name="tasks_sync_now">Sync now</string>
+    <string name="tasks_syncing">Syncing…</string>
+    <string name="tasks_last_sync">Last sync: %1$s</string>
+    <string name="tasks_never">never</string>
+    <string name="tasks_status_never">Not synced yet</string>
+    <string name="tasks_status_ok">Synced</string>
+    <string name="tasks_status_pending">Waiting to upload</string>
+    <string name="tasks_status_error">Error, will retry</string>
+    <string name="tasks_status_token">Check the token</string>
 </resources>

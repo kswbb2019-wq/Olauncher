@@ -70,6 +70,12 @@
     </fragment>
 
     <fragment
+        android:id="@+id/taskSettingsFragment"
+        android:name="app.olauncher.ui.TaskSettingsFragment"
+        android:label="task_settings_fragment"
+        tools:layout="@layout/fragment_task_settings" />
+
+    <fragment
         android:id="@+id/folderFragment"
         android:name="app.olauncher.ui.FolderFragment"
         android:label="folder_fragment"
@@ -93,6 +99,13 @@
         android:name="app.olauncher.ui.SettingsFragment"
         android:label="SettingsFragment"
         android:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_settingsFragment_to_taskSettingsFragment"
+            app:destination="@id/taskSettingsFragment"
+            app:enterAnim="@anim/fade_enter"
+            app:exitAnim="@anim/fade_exit"
+            app:popEnterAnim="@anim/fade_enter"
+            app:popExitAnim="@anim/fade_exit" />
         <action
             android:id="@+id/action_settingsFragment_to_appListFragment"
             app:destination="@id/appListFragment"

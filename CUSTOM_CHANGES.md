@@ -12,3 +12,4 @@
 - 2026-10-27: 위젯 크기를 위젯이 정한 최소/최대 · 크기 조절 방향 범위 안으로 제한, 기본 크기는 위젯 권장 크기 ("Inhalt kann nicht angezeigt werden" 대응)
 - 2026-10-27: 삼성 위젯은 위젯이 정한 기본 크기(minWidth × minHeight)로 추가, 편집 모드에 Standardgröße(기본 크기로 되돌리기) 추가
 - 2026-10-30: 홈 화면 폴더 추가 — 홈 슬롯 앱 선택 목록의 "+ Ordner erstellen", 폴더 화면(실행 · 길게 눌러 빼기 · 앱 추가 · 이름 바꾸기 · 삭제), Prefs에 JSON 저장
+- 2026-11-16: 할 일 1/3 데이터와 동기화 — data/tasks.json(63개), GitHub Contents API 양방향 동기화(updatedAt 병합, tombstone), 설정 > Aufgaben 에 저장소 · 토큰 · 상태, data/ 만 바뀐 커밋은 빌드 안 함

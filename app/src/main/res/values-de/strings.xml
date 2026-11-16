@@ -178,4 +178,25 @@
     <string name="folder_replace">Ersetzen</string>
     <string name="folder_remove_app">Aus Ordner entfernen</string>
     <string name="folder_empty">Keine Apps in diesem Ordner</string>
+    <string name="tasks">Aufgaben</string>
+    <string name="tasks_sync">GitHub-Synchronisierung</string>
+    <string name="tasks_owner">Besitzer</string>
+    <string name="tasks_repo">Repository</string>
+    <string name="tasks_branch">Branch</string>
+    <string name="tasks_path">Dateipfad</string>
+    <string name="tasks_token">Zugriffstoken</string>
+    <string name="tasks_token_hint">Token einfügen</string>
+    <string name="tasks_token_saved_hint">Gespeichert · leer lassen zum Behalten</string>
+    <string name="tasks_token_remove">Token entfernen</string>
+    <string name="tasks_save">Speichern</string>
+    <string name="tasks_saved">Gespeichert</string>
+    <string name="tasks_sync_now">Jetzt synchronisieren</string>
+    <string name="tasks_syncing">Synchronisiere…</string>
+    <string name="tasks_last_sync">Letzte Synchronisierung: %1$s</string>
+    <string name="tasks_never">noch nie</string>
+    <string name="tasks_status_never">Noch nicht synchronisiert</string>
+    <string name="tasks_status_ok">Erfolgreich</string>
+    <string name="tasks_status_pending">Wartet auf Upload</string>
+    <string name="tasks_status_error">Fehler, neuer Versuch folgt</string>
+    <string name="tasks_status_token">Token prüfen</string>
 </resources>
