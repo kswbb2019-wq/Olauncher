@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Task settings, opened from the Tasks row in settings. Styled like fragment_settings.xml -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/primaryShadeDarkColor"
+    android:fadingEdgeLength="48dp"
+    android:overScrollMode="never"
+    android:requiresFadingEdge="vertical"
+    android:scrollbars="none"
+    tools:context=".ui.TaskSettingsFragment">
+
+    <LinearLayout
+        android:id="@+id/taskSettingsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingVertical="64dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:background="@drawable/rounded_rect_shade_color"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="16dp">
+
+            <TextView
+                style="@style/TextLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/tasks"
+                android:textColor="?attr/primaryColor" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    style="@style/TextSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:paddingVertical="8dp"
+                    android:text="@string/tasks_show_on_home"
+                    android:textColor="?attr/primaryColor" />
+
+                <TextView
+                    android:id="@+id/tasksOnHome"
+                    style="@style/TextSmallBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="4dp"
+                    android:padding="8dp"
+                    android:text="@string/on" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    style="@style/TextSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:paddingVertical="8dp"
+                    android:text="@string/tasks_all"
+                    android:textColor="?attr/primaryColor" />
+
+                <TextView
+                    android:id="@+id/tasksOpenAll"
+                    style="@style/TextSmallBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="4dp"
+                    android:padding="8dp"
+                    android:text="›"
+                    tools:ignore="HardcodedText" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    style="@style/TextSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:paddingVertical="8dp"
+                    android:text="@string/tasks_reminders"
+                    android:textColor="?attr/primaryColor" />
+
+                <TextView
+                    android:id="@+id/taskReminders"
+                    style="@style/TextSmallBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="4dp"
+                    android:padding="8dp"
+                    android:text="@string/off" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp">
+
+                <TextView
+                    style="@style/TextSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:paddingVertical="8dp"
+                    android:text="@string/tasks_reminder_time"
+                    android:textColor="?attr/primaryColor" />
+
+                <TextView
+                    android:id="@+id/taskReminderTime"
+                    style="@style/TextSmallBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="4dp"
+                    android:padding="8dp"
+                    tools:text="08:00" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- GitHub sync: the repository defaults are filled in, so only the token is needed -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/rounded_rect_shade_color"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="16dp">
+
+            <TextView
+                style="@style/TextLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/tasks_sync"
+                android:textColor="?attr/primaryColor" />
+
+            <TextView
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tasks_owner"
+                android:textColor="?attr/primaryColor" />
+
+            <EditText
+                android:id="@+id/taskOwner"
+                style="@style/TextSmallBold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="text|textNoSuggestions"
+                android:singleLine="true"
+                tools:ignore="LabelFor" />
+
+            <TextView
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tasks_repo"
+                android:textColor="?attr/primaryColor" />
+
+            <EditText
+                android:id="@+id/taskRepo"
+                style="@style/TextSmallBold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="text|textNoSuggestions"
+                android:singleLine="true"
+                tools:ignore="LabelFor" />
+
+            <TextView
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tasks_branch"
+                android:textColor="?attr/primaryColor" />
+
+            <EditText
+                android:id="@+id/taskBranch"
+                style="@style/TextSmallBold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="text|textNoSuggestions"
+                android:singleLine="true"
+                tools:ignore="LabelFor" />
+
+            <TextView
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tasks_path"
+                android:textColor="?attr/primaryColor" />
+
+            <EditText
+                android:id="@+id/taskPath"
+                style="@style/TextSmallBold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="text|textNoSuggestions"
+                android:singleLine="true"
+                tools:ignore="LabelFor" />
+
+            <TextView
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tasks_token"
+                android:textColor="?attr/primaryColor" />
+
+            <!-- Never shows the saved token, only whether one is saved -->
+            <EditText
+                android:id="@+id/taskToken"
+                style="@style/TextSmallBold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                tools:ignore="LabelFor" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/taskSave"
+                    style="@style/TextSmallBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:text="@string/tasks_save" />
+
+                <TextView
+                    android:id="@+id/taskSyncNow"
+                    style="@style/TextSmallBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:text="@string/tasks_sync_now" />
+
+                <TextView
+                    android:id="@+id/taskTokenRemove"
+                    style="@style/TextSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:focusable="true"
+                    android:padding="8dp"
+                    android:text="@string/tasks_token_remove" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/taskSyncStatus"
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingHorizontal="8dp"
+                android:textColor="?attr/primaryColor"
+                tools:text="Erfolgreich" />
+
+            <TextView
+                android:id="@+id/taskLastSync"
+                style="@style/TextSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="?attr/primaryColor"
+                tools:text="Letzte Synchronisierung: 16.11.2026, 09:12" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -3,6 +3,9 @@ name: Build APK
 on:
   push:
     branches: [ master ]
+    # Task list edits (data/tasks.json) need no new APK
+    paths-ignore:
+      - 'data/**'
   workflow_dispatch:
 
 permissions:

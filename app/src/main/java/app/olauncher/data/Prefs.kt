@@ -45,6 +45,19 @@ class Prefs(context: Context) {
     private val PENDING_WIDGET_ID = "PENDING_WIDGET_ID"
     private val WIDGET_SIZE = "WIDGET_SIZE_"
     private val HOME_FOLDERS = "HOME_FOLDERS"
+    private val TASK_REPO_OWNER = "TASK_REPO_OWNER"
+    private val TASK_REPO_NAME = "TASK_REPO_NAME"
+    private val TASK_REPO_BRANCH = "TASK_REPO_BRANCH"
+    private val TASK_REPO_PATH = "TASK_REPO_PATH"
+    private val TASK_REMOTE_SHA = "TASK_REMOTE_SHA"
+    private val TASK_SYNC_STATUS = "TASK_SYNC_STATUS"
+    private val TASK_LAST_SYNC = "TASK_LAST_SYNC"
+    private val TASK_LAST_ATTEMPT = "TASK_LAST_ATTEMPT"
+    private val TASK_LOCAL_REVISION = "TASK_LOCAL_REVISION"
+    private val TASK_SYNCED_REVISION = "TASK_SYNCED_REVISION"
+    private val TASKS_ON_HOME = "TASKS_ON_HOME"
+    private val TASK_REMINDERS = "TASK_REMINDERS"
+    private val TASK_REMINDER_TIME = "TASK_REMINDER_TIME"
     private val PRO_MESSAGE_SHOWN = "PRO_MESSAGE_SHOWN"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
     private val SCREEN_TIME_LAST_UPDATED = "SCREEN_TIME_LAST_UPDATED"
@@ -240,6 +253,62 @@ class Prefs(context: Context) {
         if (size == null) remove(WIDGET_SIZE + widgetId)
         else putString(WIDGET_SIZE + widgetId, "${size.first},${size.second}")
     }
+
+    // To-do sync: where tasks.json lives (the token is kept in TokenStore, not here)
+    var taskRepoOwner: String
+        get() = prefs.getString(TASK_REPO_OWNER, Constants.Tasks.REPO_OWNER).toString()
+        set(value) = prefs.edit { putString(TASK_REPO_OWNER, value) }
+
+    var taskRepoName: String
+        get() = prefs.getString(TASK_REPO_NAME, Constants.Tasks.REPO_NAME).toString()
+        set(value) = prefs.edit { putString(TASK_REPO_NAME, value) }
+
+    var taskRepoBranch: String
+        get() = prefs.getString(TASK_REPO_BRANCH, Constants.Tasks.REPO_BRANCH).toString()
+        set(value) = prefs.edit { putString(TASK_REPO_BRANCH, value) }
+
+    var taskRepoPath: String
+        get() = prefs.getString(TASK_REPO_PATH, Constants.Tasks.REPO_PATH).toString()
+        set(value) = prefs.edit { putString(TASK_REPO_PATH, value) }
+
+    // Blob sha of the file as last read or written
+    var taskRemoteSha: String
+        get() = prefs.getString(TASK_REMOTE_SHA, "").toString()
+        set(value) = prefs.edit { putString(TASK_REMOTE_SHA, value) }
+
+    var taskSyncStatus: Int
+        get() = prefs.getInt(TASK_SYNC_STATUS, Constants.TaskSyncStatus.NEVER)
+        set(value) = prefs.edit { putInt(TASK_SYNC_STATUS, value) }
+
+    var taskLastSync: Long
+        get() = prefs.getLong(TASK_LAST_SYNC, 0L)
+        set(value) = prefs.edit { putLong(TASK_LAST_SYNC, value) }
+
+    var taskLastAttempt: Long
+        get() = prefs.getLong(TASK_LAST_ATTEMPT, 0L)
+        set(value) = prefs.edit { putLong(TASK_LAST_ATTEMPT, value) }
+
+    // Bumped on every edit in the launcher; equal to the synced one when nothing waits for upload
+    var taskLocalRevision: Long
+        get() = prefs.getLong(TASK_LOCAL_REVISION, 0L)
+        set(value) = prefs.edit { putLong(TASK_LOCAL_REVISION, value) }
+
+    var taskSyncedRevision: Long
+        get() = prefs.getLong(TASK_SYNCED_REVISION, 0L)
+        set(value) = prefs.edit { putLong(TASK_SYNCED_REVISION, value) }
+
+    var showTasksOnHome: Boolean
+        get() = prefs.getBoolean(TASKS_ON_HOME, true)
+        set(value) = prefs.edit { putBoolean(TASKS_ON_HOME, value) }
+
+    var taskReminders: Boolean
+        get() = prefs.getBoolean(TASK_REMINDERS, false)
+        set(value) = prefs.edit { putBoolean(TASK_REMINDERS, value) }
+
+    // HH:mm, for tasks without a time of their own
+    var taskReminderTime: String
+        get() = prefs.getString(TASK_REMINDER_TIME, "08:00").toString()
+        set(value) = prefs.edit { putString(TASK_REMINDER_TIME, value) }
 
     // Home slot (1-8) to folder, as JSON. A folder shows instead of the slot's app,
     // whose own prefs are left as they are

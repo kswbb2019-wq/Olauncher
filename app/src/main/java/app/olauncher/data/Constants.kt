@@ -115,4 +115,23 @@ object Constants {
     const val DIGITAL_WELLBEING_SAMSUNG_PACKAGE_NAME = "com.samsung.android.forest"
     const val DIGITAL_WELLBEING_SAMSUNG_ACTIVITY = "com.samsung.android.forest.launcher.LauncherActivity"
     const val WALLPAPER_WORKER_NAME = "WALLPAPER_WORKER_NAME"
+
+    // To-do list synced with a tasks.json file in this fork's GitHub repository
+    object Tasks {
+        const val REPO_OWNER = "kswbb2019-wq"
+        const val REPO_NAME = "Olauncher"
+        const val REPO_BRANCH = "master"
+        const val REPO_PATH = "data/tasks.json"
+
+        const val SYNC_PERIODIC_WORK = "TASK_SYNC_PERIODIC"
+        const val SYNC_UPLOAD_WORK = "TASK_SYNC_UPLOAD"
+    }
+
+    object TaskSyncStatus {
+        const val NEVER = 0
+        const val OK = 1
+        const val PENDING = 2
+        const val ERROR = 3
+        const val TOKEN = 4
+    }
 }
