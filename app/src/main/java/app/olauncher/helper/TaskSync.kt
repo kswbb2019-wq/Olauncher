@@ -91,6 +91,7 @@ object TaskSync {
      */
     fun edit(context: Context, change: (List<Task>) -> List<Task>) {
         TaskRepository.update(context, change)
+        TaskReminders.reschedule(context)
         val prefs = Prefs(context)
         prefs.taskLocalRevision = prefs.taskLocalRevision + 1
         prefs.taskSyncStatus = Constants.TaskSyncStatus.PENDING
@@ -129,6 +130,7 @@ object TaskSync {
                     revision = prefs.taskLocalRevision
                     TaskMerge.merge(local, remote.tasks, System.currentTimeMillis())
                 }
+                TaskReminders.reschedule(context)
                 if (merged.toSet() == remote.tasks.toSet()) {
                     succeeded(prefs, remote.sha, revision)
                     return true

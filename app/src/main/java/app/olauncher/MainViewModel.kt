@@ -63,7 +63,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // Suppress backToHomeScreen during Private Space lock/unlock auth
     var isPrivateSpaceToggling = false
 
-    // Suppress backToHomeScreen while a widget bind or setup screen is open
+    // Suppress backToHomeScreen while a widget setup screen or a permission dialog is open
     var isWidgetSetupOpen = false
 
     val showDialog = SingleLiveEvent<String>()

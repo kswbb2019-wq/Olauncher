@@ -34,6 +34,7 @@ import app.olauncher.helper.isDarkThemeOn
 import app.olauncher.helper.isDaySince
 import app.olauncher.helper.isDefaultLauncher
 import app.olauncher.helper.OlDialog
+import app.olauncher.helper.TaskReminders
 import app.olauncher.helper.TaskSync
 import app.olauncher.helper.isEinkDisplay
 import app.olauncher.helper.isOlauncherDefault
@@ -110,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         initObservers(viewModel)
         viewModel.getAppList()
         TaskSync.start(this)
+        TaskReminders.reschedule(this)
         registerShortcutCallback()
         setupOrientation()
 

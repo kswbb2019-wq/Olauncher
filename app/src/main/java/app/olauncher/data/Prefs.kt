@@ -56,6 +56,8 @@ class Prefs(context: Context) {
     private val TASK_LOCAL_REVISION = "TASK_LOCAL_REVISION"
     private val TASK_SYNCED_REVISION = "TASK_SYNCED_REVISION"
     private val TASKS_ON_HOME = "TASKS_ON_HOME"
+    private val TASK_REMINDERS = "TASK_REMINDERS"
+    private val TASK_REMINDER_TIME = "TASK_REMINDER_TIME"
     private val PRO_MESSAGE_SHOWN = "PRO_MESSAGE_SHOWN"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
     private val SCREEN_TIME_LAST_UPDATED = "SCREEN_TIME_LAST_UPDATED"
@@ -298,6 +300,15 @@ class Prefs(context: Context) {
     var showTasksOnHome: Boolean
         get() = prefs.getBoolean(TASKS_ON_HOME, true)
         set(value) = prefs.edit { putBoolean(TASKS_ON_HOME, value) }
+
+    var taskReminders: Boolean
+        get() = prefs.getBoolean(TASK_REMINDERS, false)
+        set(value) = prefs.edit { putBoolean(TASK_REMINDERS, value) }
+
+    // HH:mm, for tasks without a time of their own
+    var taskReminderTime: String
+        get() = prefs.getString(TASK_REMINDER_TIME, "08:00").toString()
+        set(value) = prefs.edit { putString(TASK_REMINDER_TIME, value) }
 
     // Home slot (1-8) to folder, as JSON. A folder shows instead of the slot's app,
     // whose own prefs are left as they are

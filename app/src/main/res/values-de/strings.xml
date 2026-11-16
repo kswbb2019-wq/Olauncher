@@ -212,4 +212,9 @@
     <string name="tasks_note">Notiz</string>
     <string name="tasks_no_time">Keine Uhrzeit</string>
     <string name="tasks_title_needed">Gib einen Titel ein</string>
+    <string name="tasks_reminders">Erinnerungen</string>
+    <string name="tasks_reminder_time">Erinnerungszeit</string>
+    <string name="tasks_reminder_channel">Aufgaben-Erinnerungen</string>
+    <string name="tasks_reminder_title">Heute offen: %1$d</string>
+    <string name="tasks_notifications_blocked">Benachrichtigungen sind für diese App aus</string>
 </resources>
