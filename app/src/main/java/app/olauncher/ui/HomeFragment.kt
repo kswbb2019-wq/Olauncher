@@ -337,7 +337,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         binding.date.text = dateText.replace(".,", ",")
     }
 
-    // Today's tasks on the right: a tap checks one off, the heading opens all tasks
+    // Today's tasks in the left half: a tap checks one off, the heading opens all tasks
     private fun populateTasks() {
         val container = binding.todayTasks
         container.removeAllViews()
@@ -366,7 +366,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         }
     }
 
-    private fun taskLine(text: String) = TextView(requireContext(), null, 0, R.style.TextSmall).apply {
+    private fun taskLine(text: String) = TextView(requireContext(), null, 0, R.style.TextMedium).apply {
         this.text = text
         setPadding(0, 4.dpToPx(), 0, 4.dpToPx())
         theme.styleText(this)
