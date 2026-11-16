@@ -4,7 +4,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -105,33 +104,6 @@ object TaskDates {
         SimpleDateFormat("yyyy-MM-dd", Locale.US).apply { isLenient = false }.parse(date)
     } catch (_: ParseException) {
         null
-    }
-
-    /**
-     * The first reminder after [now]: each unchecked task asks for one at its own time, or at
-     * [defaultTime] when it has none, and that reminder lists every unchecked task of its day.
-     */
-    fun nextReminder(tasks: List<Task>, defaultTime: String, now: Long): Long? =
-        tasks.filter { !it.done && !it.deleted }
-            .mapNotNull { at(it.date, it.time?.takeIf { time -> parseTime(time) != null } ?: defaultTime) }
-            .filter { it > now }
-            .minOrNull()
-
-    private fun at(date: String, time: String): Long? {
-        val day = parse(date) ?: return null
-        val (hour, minute) = parseTime(time) ?: return null
-        return Calendar.getInstance().apply {
-            this.time = day
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-        }.timeInMillis
-    }
-
-    /** Hour and minute of an HH:mm time, or null. */
-    fun parseTime(time: String): Pair<Int, Int>? {
-        val parts = time.trim().split(":").mapNotNull { it.toIntOrNull() }
-        if (parts.size != 2 || parts[0] !in 0..23 || parts[1] !in 0..59) return null
-        return parts[0] to parts[1]
     }
 }
 

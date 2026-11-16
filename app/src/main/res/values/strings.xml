@@ -242,9 +242,4 @@
     <string name="tasks_note">Note</string>
     <string name="tasks_no_time">No time</string>
     <string name="tasks_title_needed">Enter a title</string>
-    <string name="tasks_reminders">Reminders</string>
-    <string name="tasks_reminder_time">Reminder time</string>
-    <string name="tasks_reminder_channel">Task reminders</string>
-    <string name="tasks_reminder_title">Open today: %1$d</string>
-    <string name="tasks_notifications_blocked">Notifications are off for this app</string>
 </resources>
