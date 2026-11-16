@@ -92,6 +92,21 @@ object TaskJson {
     }
 }
 
+/** Local calendar dates as tasks use them (yyyy-MM-dd). */
+object TaskDates {
+
+    fun today(): String = format(Date())
+
+    fun format(date: Date): String = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date)
+
+    /** Local midnight of [date], or null if it is not a yyyy-MM-dd date. */
+    fun parse(date: String): Date? = try {
+        SimpleDateFormat("yyyy-MM-dd", Locale.US).apply { isLenient = false }.parse(date)
+    } catch (_: ParseException) {
+        null
+    }
+}
+
 /** ISO 8601 times for [Task.updatedAt], written in UTC with milliseconds. */
 object IsoTime {
 

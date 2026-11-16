@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
 import android.content.res.Configuration
+import android.graphics.Paint
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
@@ -31,9 +32,15 @@ import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.AppModel
 import app.olauncher.data.Constants
+import app.olauncher.data.IsoTime
 import app.olauncher.data.LauncherTheme
 import app.olauncher.data.Prefs
+import app.olauncher.data.Task
+import app.olauncher.data.TaskDates
+import app.olauncher.data.TaskMerge
+import app.olauncher.data.TaskRepository
 import app.olauncher.databinding.FragmentHomeBinding
+import app.olauncher.helper.TaskSync
 import app.olauncher.helper.appUsagePermissionGranted
 import app.olauncher.helper.dpToPx
 import app.olauncher.helper.expandNotificationDrawer
@@ -86,6 +93,8 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     override fun onResume() {
         super.onResume()
         populateHomeScreen(false)
+        populateTasks()
+        TaskSync.syncIfStale(requireContext())
         viewModel.isOlauncherDefault()
         if (prefs.showStatusBar) showStatusBar()
         else hideStatusBar()
@@ -209,6 +218,9 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         viewModel.screenTimeValue.observe(viewLifecycleOwner) {
             it?.let { binding.tvScreenTime.text = it }
         }
+        TaskRepository.changes.observe(viewLifecycleOwner) {
+            populateTasks()
+        }
         // Home button for recents feature disabled
         // viewModel.showRecentApps.observe(viewLifecycleOwner) {
         //     binding.recents.performClick()
@@ -310,7 +322,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     private fun populateDateTime() {
         binding.clock.isVisible = theme.clockVisible ?: Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
         binding.date.isVisible = theme.dateVisible ?: Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
-        binding.dateTimeLayout.isVisible = binding.clock.isVisible || binding.date.isVisible
+        binding.dateTimeLayout.isVisible = binding.clock.isVisible || binding.date.isVisible || binding.todayTasks.isVisible
 
 //        var dateText = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
         val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
@@ -323,6 +335,49 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
                 dateText = getString(R.string.day_battery, dateText, battery)
         }
         binding.date.text = dateText.replace(".,", ",")
+    }
+
+    // Today's tasks under the date: a tap checks one off, the heading opens all tasks
+    private fun populateTasks() {
+        val container = binding.todayTasks
+        container.removeAllViews()
+        container.isVisible = prefs.showTasksOnHome
+        binding.dateTimeLayout.isVisible = binding.clock.isVisible || binding.date.isVisible || container.isVisible
+        if (!prefs.showTasksOnHome) return
+
+        container.gravity = binding.dateTimeLayout.gravity
+        container.addView(taskLine(getString(R.string.tasks_today)).apply {
+            alpha = 0.6f
+            setOnClickListener {
+                try {
+                    findNavController().navigate(R.id.action_mainFragment_to_tasksFragment)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        })
+        val today = TaskDates.today()
+        TaskRepository.visible(requireContext()).filter { it.date == today }.sortedWith(TaskMerge.ORDER).forEach { task ->
+            container.addView(taskLine((if (task.done) "✓  " else "○  ") + task.title).apply {
+                if (task.done) {
+                    alpha = 0.5f
+                    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                }
+                setOnClickListener { toggleTask(task) }
+            })
+        }
+    }
+
+    private fun taskLine(text: String) = TextView(requireContext(), null, 0, R.style.TextSmall).apply {
+        this.text = text
+        setPadding(0, 4.dpToPx(), 0, 4.dpToPx())
+        theme.styleText(this)
+    }
+
+    private fun toggleTask(task: Task) {
+        TaskSync.edit(requireContext()) { tasks ->
+            tasks.map { if (it.id == task.id) it.copy(done = !it.done, updatedAt = IsoTime.now()) else it }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)

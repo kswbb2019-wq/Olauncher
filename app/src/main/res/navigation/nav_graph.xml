@@ -32,6 +32,13 @@
             app:popEnterAnim="@anim/fade_enter"
             app:popExitAnim="@anim/fade_exit" />
         <action
+            android:id="@+id/action_mainFragment_to_tasksFragment"
+            app:destination="@id/tasksFragment"
+            app:enterAnim="@anim/fade_enter"
+            app:exitAnim="@anim/fade_exit"
+            app:popEnterAnim="@anim/fade_enter"
+            app:popExitAnim="@anim/fade_exit" />
+        <action
             android:id="@+id/action_mainFragment_to_widgetsFragment"
             app:destination="@id/widgetsFragment"
             app:enterAnim="@anim/slide_in_left"
@@ -73,7 +80,21 @@
         android:id="@+id/taskSettingsFragment"
         android:name="app.olauncher.ui.TaskSettingsFragment"
         android:label="task_settings_fragment"
-        tools:layout="@layout/fragment_task_settings" />
+        tools:layout="@layout/fragment_task_settings">
+        <action
+            android:id="@+id/action_taskSettingsFragment_to_tasksFragment"
+            app:destination="@id/tasksFragment"
+            app:enterAnim="@anim/fade_enter"
+            app:exitAnim="@anim/fade_exit"
+            app:popEnterAnim="@anim/fade_enter"
+            app:popExitAnim="@anim/fade_exit" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tasksFragment"
+        android:name="app.olauncher.ui.TasksFragment"
+        android:label="tasks_fragment"
+        tools:layout="@layout/fragment_tasks" />
 
     <fragment
         android:id="@+id/folderFragment"

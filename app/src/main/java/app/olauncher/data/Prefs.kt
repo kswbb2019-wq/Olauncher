@@ -55,6 +55,7 @@ class Prefs(context: Context) {
     private val TASK_LAST_ATTEMPT = "TASK_LAST_ATTEMPT"
     private val TASK_LOCAL_REVISION = "TASK_LOCAL_REVISION"
     private val TASK_SYNCED_REVISION = "TASK_SYNCED_REVISION"
+    private val TASKS_ON_HOME = "TASKS_ON_HOME"
     private val PRO_MESSAGE_SHOWN = "PRO_MESSAGE_SHOWN"
     private val HIDE_SET_DEFAULT_LAUNCHER = "HIDE_SET_DEFAULT_LAUNCHER"
     private val SCREEN_TIME_LAST_UPDATED = "SCREEN_TIME_LAST_UPDATED"
@@ -293,6 +294,10 @@ class Prefs(context: Context) {
     var taskSyncedRevision: Long
         get() = prefs.getLong(TASK_SYNCED_REVISION, 0L)
         set(value) = prefs.edit { putLong(TASK_SYNCED_REVISION, value) }
+
+    var showTasksOnHome: Boolean
+        get() = prefs.getBoolean(TASKS_ON_HOME, true)
+        set(value) = prefs.edit { putBoolean(TASKS_ON_HOME, value) }
 
     // Home slot (1-8) to folder, as JSON. A folder shows instead of the slot's app,
     // whose own prefs are left as they are

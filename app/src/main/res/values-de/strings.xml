@@ -199,4 +199,17 @@
     <string name="tasks_status_pending">Wartet auf Upload</string>
     <string name="tasks_status_error">Fehler, neuer Versuch folgt</string>
     <string name="tasks_status_token">Token prüfen</string>
+    <string name="tasks_today">Heute ›</string>
+    <string name="tasks_today_label">Heute</string>
+    <string name="tasks_show_on_home">Auf dem Startbildschirm</string>
+    <string name="tasks_all">Alle Aufgaben</string>
+    <string name="tasks_empty">Noch keine Aufgaben</string>
+    <string name="tasks_add">Aufgabe hinzufügen</string>
+    <string name="tasks_edit">Aufgabe bearbeiten</string>
+    <string name="tasks_edit_short">Bearbeiten</string>
+    <string name="tasks_delete">Löschen</string>
+    <string name="tasks_title">Titel</string>
+    <string name="tasks_note">Notiz</string>
+    <string name="tasks_no_time">Keine Uhrzeit</string>
+    <string name="tasks_title_needed">Gib einen Titel ein</string>
 </resources>

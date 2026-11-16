@@ -229,4 +229,17 @@
     <string name="tasks_status_pending">Waiting to upload</string>
     <string name="tasks_status_error">Error, will retry</string>
     <string name="tasks_status_token">Check the token</string>
+    <string name="tasks_today">Today ›</string>
+    <string name="tasks_today_label">Today</string>
+    <string name="tasks_show_on_home">Show on home screen</string>
+    <string name="tasks_all">All tasks</string>
+    <string name="tasks_empty">No tasks yet</string>
+    <string name="tasks_add">Add task</string>
+    <string name="tasks_edit">Edit task</string>
+    <string name="tasks_edit_short">Edit</string>
+    <string name="tasks_delete">Delete</string>
+    <string name="tasks_title">Title</string>
+    <string name="tasks_note">Note</string>
+    <string name="tasks_no_time">No time</string>
+    <string name="tasks_title_needed">Enter a title</string>
 </resources>

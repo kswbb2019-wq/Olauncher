@@ -5,6 +5,7 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import app.olauncher.R
 import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
@@ -31,6 +32,15 @@ class TaskSettingsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         prefs = Prefs(requireContext())
 
+        populateTasksOnHome()
+        binding.tasksOnHome.setOnClickListener {
+            prefs.showTasksOnHome = !prefs.showTasksOnHome
+            populateTasksOnHome()
+        }
+        binding.tasksOpenAll.setOnClickListener {
+            findNavController().navigate(R.id.action_taskSettingsFragment_to_tasksFragment)
+        }
+
         binding.taskOwner.setText(prefs.taskRepoOwner)
         binding.taskRepo.setText(prefs.taskRepoName)
         binding.taskBranch.setText(prefs.taskRepoBranch)
@@ -44,6 +54,10 @@ class TaskSettingsFragment : BaseFragment() {
             populateToken()
         }
         TaskSync.statusChanges.observe(viewLifecycleOwner) { populateStatus() }
+    }
+
+    private fun populateTasksOnHome() {
+        binding.tasksOnHome.text = getString(if (prefs.showTasksOnHome) R.string.on else R.string.off)
     }
 
     // An empty field keeps the saved token; its value is never put back on screen
