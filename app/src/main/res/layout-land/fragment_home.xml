@@ -55,17 +55,18 @@
             android:paddingHorizontal="3dp"
             android:textSize="@dimen/date_size"
             tools:text="Thu, 30 Dec" />
-
-        <!-- Today's tasks from tasks.json, filled in by HomeFragment -->
-        <LinearLayout
-            android:id="@+id/todayTasks"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical"
-            android:paddingHorizontal="3dp"
-            android:visibility="gone" />
     </LinearLayout>
+
+    <!-- Today's tasks from tasks.json, on the right so centered home apps stay clear -->
+    <LinearLayout
+        android:id="@+id/todayTasks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="32dp"
+        android:gravity="end"
+        android:orientation="vertical"
+        android:visibility="gone" />
 
     <!-- Screen time-->
     <androidx.appcompat.widget.AppCompatTextView

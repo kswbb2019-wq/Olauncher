@@ -322,7 +322,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
     private fun populateDateTime() {
         binding.clock.isVisible = theme.clockVisible ?: Constants.DateTime.isTimeVisible(prefs.dateTimeVisibility)
         binding.date.isVisible = theme.dateVisible ?: Constants.DateTime.isDateVisible(prefs.dateTimeVisibility)
-        binding.dateTimeLayout.isVisible = binding.clock.isVisible || binding.date.isVisible || binding.todayTasks.isVisible
+        binding.dateTimeLayout.isVisible = binding.clock.isVisible || binding.date.isVisible
 
 //        var dateText = SimpleDateFormat("EEE, d MMM", Locale.getDefault()).format(Date())
         val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
@@ -337,15 +337,13 @@ class HomeFragment : BaseFragment(), View.OnClickListener, View.OnLongClickListe
         binding.date.text = dateText.replace(".,", ",")
     }
 
-    // Today's tasks under the date: a tap checks one off, the heading opens all tasks
+    // Today's tasks on the right: a tap checks one off, the heading opens all tasks
     private fun populateTasks() {
         val container = binding.todayTasks
         container.removeAllViews()
         container.isVisible = prefs.showTasksOnHome
-        binding.dateTimeLayout.isVisible = binding.clock.isVisible || binding.date.isVisible || container.isVisible
         if (!prefs.showTasksOnHome) return
 
-        container.gravity = binding.dateTimeLayout.gravity
         container.addView(taskLine(getString(R.string.tasks_today)).apply {
             alpha = 0.6f
             setOnClickListener {

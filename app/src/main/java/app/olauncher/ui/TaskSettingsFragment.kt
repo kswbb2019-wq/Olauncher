@@ -1,42 +1,24 @@
 package app.olauncher.ui
 
-import android.Manifest
-import android.app.TimePickerDialog
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import app.olauncher.MainViewModel
 import app.olauncher.R
 import app.olauncher.data.Constants
 import app.olauncher.data.Prefs
-import app.olauncher.data.TaskDates
 import app.olauncher.data.TokenStore
 import app.olauncher.databinding.FragmentTaskSettingsBinding
-import app.olauncher.helper.TaskReminders
 import app.olauncher.helper.TaskSync
 import app.olauncher.helper.showToast
 import java.util.Date
-import java.util.Locale
 
-/** Task settings: home display, reminders, where tasks.json lives on GitHub, the token and sync status. */
+/** Task settings: where tasks.json lives on GitHub, the token, and the sync status. */
 class TaskSettingsFragment : BaseFragment() {
 
     private lateinit var prefs: Prefs
-    private val viewModel: MainViewModel by activityViewModels()
-
-    private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        viewModel.isWidgetSetupOpen = false
-        if (!isAdded) return@registerForActivityResult
-        if (granted) setReminders(true)
-        else requireContext().showToast(R.string.tasks_notifications_blocked)
-    }
 
     private var _binding: FragmentTaskSettingsBinding? = null
     private val binding get() = _binding!!
@@ -58,9 +40,6 @@ class TaskSettingsFragment : BaseFragment() {
         binding.tasksOpenAll.setOnClickListener {
             findNavController().navigate(R.id.action_taskSettingsFragment_to_tasksFragment)
         }
-        populateReminders()
-        binding.taskReminders.setOnClickListener { toggleReminders() }
-        binding.taskReminderTime.setOnClickListener { pickReminderTime() }
 
         binding.taskOwner.setText(prefs.taskRepoOwner)
         binding.taskRepo.setText(prefs.taskRepoName)
@@ -79,40 +58,6 @@ class TaskSettingsFragment : BaseFragment() {
 
     private fun populateTasksOnHome() {
         binding.tasksOnHome.text = getString(if (prefs.showTasksOnHome) R.string.on else R.string.off)
-    }
-
-    private fun populateReminders() {
-        binding.taskReminders.text = getString(if (prefs.taskReminders) R.string.on else R.string.off)
-        binding.taskReminderTime.text = prefs.taskReminderTime
-    }
-
-    // Android 13+ asks for permission to post notifications first
-    private fun toggleReminders() {
-        if (prefs.taskReminders) return setReminders(false)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            requireContext().checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Keeps the launcher from returning home while the permission dialog shows
-            viewModel.isWidgetSetupOpen = true
-            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-            return
-        }
-        setReminders(true)
-    }
-
-    private fun setReminders(enabled: Boolean) {
-        prefs.taskReminders = enabled
-        TaskReminders.reschedule(requireContext())
-        if (_binding != null) populateReminders()
-    }
-
-    private fun pickReminderTime() {
-        val (hour, minute) = TaskDates.parseTime(prefs.taskReminderTime) ?: (8 to 0)
-        TimePickerDialog(requireContext(), { _, h, m ->
-            prefs.taskReminderTime = String.format(Locale.US, "%02d:%02d", h, m)
-            TaskReminders.reschedule(requireContext())
-            if (_binding != null) populateReminders()
-        }, hour, minute, DateFormat.is24HourFormat(requireContext())).show()
     }
 
     // An empty field keeps the saved token; its value is never put back on screen
