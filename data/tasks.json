@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T11:08:57.775Z",
+  "updatedAt": "2026-11-22T08:41:52.657Z",
   "tasks": [
     { "id": "2026-11-16-hwaktong-1", "date": "2026-11-16", "time": null, "title": "확통 1h (1/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-16T15:09:45.047Z" },
     { "id": "2026-11-16-hwaktong-2", "date": "2026-11-16", "time": null, "title": "확통 1h (2/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-16T15:09:45.386Z" },
@@ -10,11 +10,11 @@
     { "id": "2026-11-18-yeongeo-2", "date": "2026-11-21", "time": null, "title": "영어 1h (2/3)", "note": "학원 과제", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-20T05:20:35.377Z" },
     { "id": "2026-11-18-yeongeo-3", "date": "2026-11-21", "time": null, "title": "영어 1h (3/3)", "note": "학원 과제", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-20T05:20:41.315Z" },
     { "id": "2026-11-21-hwaktong-1", "date": "2026-11-21", "time": null, "title": "확통 1h (1/2)", "note": "학원 과제", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
-    { "id": "2026-11-21-hwaktong-2", "date": "2026-11-21", "time": null, "title": "확통 1h (2/2)", "note": "학원 과제", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
+    { "id": "2026-11-21-hwaktong-2", "date": "2026-11-21", "time": null, "title": "확통 1h (2/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-22T08:41:50.844Z" },
     { "id": "2026-11-21-mijeok2-1", "date": "2026-11-21", "time": null, "title": "미적2 1h (1/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-21T10:18:51.730Z" },
     { "id": "2026-11-21-mijeok2-2", "date": "2026-11-21", "time": null, "title": "미적2 1h (2/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-21T10:18:51.937Z" },
     { "id": "2026-11-19-yebi-1", "date": "2026-11-22", "time": null, "title": "예비 1h", "note": "밀린 분량 복습", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-20T05:21:42.194Z" },
-    { "id": "2026-11-22-hwabeop-1", "date": "2026-11-22", "time": null, "title": "화법 1h", "note": "학원 과제", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
+    { "id": "2026-11-22-hwabeop-1", "date": "2026-11-22", "time": null, "title": "화법 1h", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-22T07:40:11.993Z" },
     { "id": "2026-11-22-gyeongje-1", "date": "2026-11-22", "time": null, "title": "경제 1h", "note": "개념 외우기", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
     { "id": "2026-11-22-yebi-1", "date": "2026-11-22", "time": null, "title": "예비 1h", "note": "밀린 분량 복습", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
     { "id": "2026-11-16-hwabeop-1", "date": "2026-11-23", "time": null, "title": "화법 1h", "note": "학원 과제", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-20T05:20:58.773Z" },
