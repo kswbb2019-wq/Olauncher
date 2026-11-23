@@ -17,6 +17,7 @@ import android.text.TextPaint
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.GestureDetector
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import app.olauncher.R
@@ -44,6 +45,7 @@ class MonthCalendarView(context: Context) : View(context) {
     /**
      * Set to show these tasks instead of the device calendar. Taps then go to
      * [onTaskDayClick] and long presses to [onTaskDayLongClick], with the yyyy-MM-dd day.
+     * A long press on a task picks it up; dropping it on another day calls [onTaskMoved].
      */
     var tasks: List<Task>? = null
         set(value) {
@@ -52,6 +54,12 @@ class MonthCalendarView(context: Context) : View(context) {
         }
     var onTaskDayClick: (String) -> Unit = {}
     var onTaskDayLongClick: (String) -> Unit = {}
+    var onTaskMoved: (taskId: String, date: String) -> Unit = { _, _ -> }
+
+    // The task being dragged to another day, and where the finger is
+    private var dragging: Event? = null
+    private var dragX = 0f
+    private var dragY = 0f
 
     private class Event(
         val id: Long,
@@ -62,6 +70,8 @@ class MonthCalendarView(context: Context) : View(context) {
         val allDay: Boolean,
         val begin: Long,
         val end: Long,
+        val taskId: String? = null,
+        val faded: Boolean = false,
     )
 
     private val month: Calendar = Calendar.getInstance().apply {
@@ -93,6 +103,7 @@ class MonthCalendarView(context: Context) : View(context) {
     private val todayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = textColor }
     private val eventPaint = textPaint(11f, textColor)
     private val eventBarPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val dropPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = withAlpha(textColor, 0x22) }
 
     private val gestures = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent) = true
@@ -103,6 +114,10 @@ class MonthCalendarView(context: Context) : View(context) {
         }
 
         override fun onLongPress(e: MotionEvent) {
+            if (tasks != null) {
+                val task = eventRects.firstOrNull { it.first.contains(e.x, e.y) }?.second
+                if (task?.taskId != null) return startDrag(task, e)
+            }
             val day = dayAt(e.x, e.y) ?: return
             if (tasks != null) onTaskDayLongClick(TaskDates.format(day.time)) else addEvent(day)
         }
@@ -114,7 +129,47 @@ class MonthCalendarView(context: Context) : View(context) {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onTouchEvent(event: MotionEvent): Boolean = gestures.onTouchEvent(event)
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val drag = dragging ?: return gestures.onTouchEvent(event)
+        when (event.actionMasked) {
+            MotionEvent.ACTION_MOVE -> {
+                dragX = event.x
+                dragY = event.y
+            }
+
+            MotionEvent.ACTION_UP -> {
+                dragging = null
+                val day = dayAt(event.x, event.y)
+                if (day != null && drag.taskId != null) onTaskMoved(drag.taskId, TaskDates.format(day.time))
+            }
+
+            MotionEvent.ACTION_CANCEL -> dragging = null
+        }
+        invalidate()
+        return true
+    }
+
+    private fun startDrag(task: Event, e: MotionEvent) {
+        dragging = task
+        dragX = e.x
+        dragY = e.y
+        // Keeps the list/calendar swipe from taking over the drag
+        parent?.requestDisallowInterceptTouchEvent(true)
+        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        invalidate()
+    }
+
+    // The day under the finger, and the task floating above it
+    private fun drawDrag(canvas: Canvas) {
+        val drag = dragging ?: return
+        dayRects.firstOrNull { it.first.contains(dragX, dragY) }?.let { canvas.drawRect(it.first, dropPaint) }
+        val label = TextUtils.ellipsize(drag.title, eventPaint, width / 3f, TextUtils.TruncateAt.END)
+        val labelWidth = eventPaint.measureText(label, 0, label.length) + dp(16f)
+        val box = RectF(dragX - labelWidth / 2, dragY - dp(44f), dragX + labelWidth / 2, dragY - dp(20f))
+        canvas.drawRoundRect(box, dp(8f), dp(8f), todayPaint)
+        eventPaint.color = inverseColor
+        canvas.drawText(label, 0, label.length, box.left + dp(8f), box.centerY() + textCenterOffset(eventPaint), eventPaint)
+    }
 
     override fun onDraw(canvas: Canvas) {
         val pad = dp(16f)
@@ -173,6 +228,7 @@ class MonthCalendarView(context: Context) : View(context) {
             drawDay(canvas, cell, day, today, day.get(Calendar.MONTH) == currentMonth)
             day.add(Calendar.DAY_OF_MONTH, 1)
         }
+        drawDrag(canvas)
     }
 
     private fun drawDay(canvas: Canvas, cell: RectF, day: Calendar, today: Int, inMonth: Boolean) {
@@ -197,7 +253,7 @@ class MonthCalendarView(context: Context) : View(context) {
             val spacing = dp(6f)
             val startX = cell.centerX() - spacing * (count - 1) / 2
             for (i in 0 until count) {
-                eventBarPaint.color = withAlpha(events[i].color, alpha)
+                eventBarPaint.color = withAlpha(events[i].color, fadedAlpha(events[i], alpha))
                 canvas.drawCircle(startX + spacing * i, cell.bottom - dp(4f), dp(2f), eventBarPaint)
             }
             return
@@ -205,16 +261,17 @@ class MonthCalendarView(context: Context) : View(context) {
 
         val shown = if (events.size > lines) lines - 1 else events.size
         var top = cell.top + numberHeight
-        eventPaint.color = withAlpha(textColor, alpha)
         for (event in events.take(shown)) {
             val line = RectF(cell.left + dp(2f), top, cell.right - dp(2f), top + lineHeight)
-            eventBarPaint.color = withAlpha(event.color, alpha)
+            eventPaint.color = withAlpha(textColor, fadedAlpha(event, alpha))
+            eventBarPaint.color = withAlpha(event.color, fadedAlpha(event, alpha))
             canvas.drawRect(line.left, line.top + dp(2f), line.left + dp(3f), line.bottom - dp(2f), eventBarPaint)
             val text = TextUtils.ellipsize(event.title, eventPaint, line.width() - dp(6f), TextUtils.TruncateAt.END)
             canvas.drawText(text, 0, text.length, line.left + dp(6f), line.centerY() + textCenterOffset(eventPaint), eventPaint)
             eventRects += line to event
             top += lineHeight
         }
+        eventPaint.color = withAlpha(textColor, alpha)
         if (events.size > shown)
             canvas.drawText("+${events.size - shown}", cell.left + dp(8f), top + lineHeight / 2 + textCenterOffset(eventPaint), eventPaint)
     }
@@ -300,9 +357,11 @@ class MonthCalendarView(context: Context) : View(context) {
         }.start()
     }
 
-    // Checked tasks keep their place with a check mark
+    // Checked tasks keep their place, faded and with a check mark
     private fun taskEvent(task: Task) =
-        Event(0, (if (task.done) "✓ " else "") + task.title, textColor, 0, 0, true, 0, 0)
+        Event(0, (if (task.done) "✓ " else "") + task.title, textColor, 0, 0, true, 0, 0, task.id, task.done)
+
+    private fun fadedAlpha(event: Event, alpha: Int) = if (event.faded) min(alpha, 0x40) else alpha
 
     private fun queryEvents(resolver: ContentResolver, begin: Long, end: Long): List<Event> {
         val projection = arrayOf(
