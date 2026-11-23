@@ -59,9 +59,11 @@ class TasksFragment : BaseFragment() {
         binding.tasksAdd.setOnClickListener { showTaskDialog(null) }
 
         // The same tasks as a month calendar: a day opens it in the list, a long press adds a task there
+        // or, on a task, drags it to another day
         calendar = MonthCalendarView(requireContext()).apply {
             onTaskDayClick = { date -> showList(date) }
             onTaskDayLongClick = { date -> showTaskDialog(null, date) }
+            onTaskMoved = { id, date -> moveTask(id, date) }
         }
         binding.tasksCalendar.addView(calendar, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         binding.tasksRoot.onSwipeLeft = { showCalendar() }
@@ -156,6 +158,12 @@ class TasksFragment : BaseFragment() {
             }
             true
         }
+    }
+
+    // Dropped on another day in the calendar
+    private fun moveTask(id: String, date: String) {
+        val task = TaskRepository.visible(requireContext()).firstOrNull { it.id == id } ?: return
+        if (task.date != date) saveTask(task.copy(date = date))
     }
 
     /** Saves [task] in place of the one with its id, or adds it, with a fresh updatedAt. */
