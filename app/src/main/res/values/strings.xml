@@ -242,4 +242,6 @@
     <string name="tasks_note">Note</string>
     <string name="tasks_no_time">No time</string>
     <string name="tasks_title_needed">Enter a title</string>
+    <string name="tasks_list_view">List</string>
+    <string name="tasks_calendar_view">Calendar</string>
 </resources>

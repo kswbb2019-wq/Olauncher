@@ -212,4 +212,6 @@
     <string name="tasks_note">Notiz</string>
     <string name="tasks_no_time">Keine Uhrzeit</string>
     <string name="tasks_title_needed">Gib einen Titel ein</string>
+    <string name="tasks_list_view">Liste</string>
+    <string name="tasks_calendar_view">Kalender</string>
 </resources>

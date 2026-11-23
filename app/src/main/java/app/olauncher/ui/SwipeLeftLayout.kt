@@ -19,6 +19,9 @@ class SwipeLeftLayout @JvmOverloads constructor(
 
     var onSwipeLeft: () -> Unit = {}
 
+    /** Right swipes are only taken from the children when this is set. */
+    var onSwipeRight: (() -> Unit)? = null
+
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     private val swipeDistance = 64 * resources.displayMetrics.density
     private var downX = 0f
@@ -33,7 +36,8 @@ class SwipeLeftLayout @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 val dx = downX - event.x
-                return dx > touchSlop * 2 && dx > abs(event.y - downY) * 2
+                val horizontal = abs(dx) > touchSlop * 2 && abs(dx) > abs(event.y - downY) * 2
+                return horizontal && (dx > 0 || onSwipeRight != null)
             }
         }
         return false
@@ -47,7 +51,10 @@ class SwipeLeftLayout @JvmOverloads constructor(
                 downY = event.y
             }
 
-            MotionEvent.ACTION_UP -> if (downX - event.x > swipeDistance) onSwipeLeft()
+            MotionEvent.ACTION_UP -> when {
+                downX - event.x > swipeDistance -> onSwipeLeft()
+                event.x - downX > swipeDistance -> onSwipeRight?.invoke()
+            }
         }
         return true
     }

@@ -20,6 +20,8 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import app.olauncher.R
+import app.olauncher.data.Task
+import app.olauncher.data.TaskDates
 import app.olauncher.helper.getColorFromAttr
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
@@ -38,6 +40,18 @@ class MonthCalendarView(context: Context) : View(context) {
 
     /** Events need READ_CALENDAR, which only the fragment can request. */
     var onPermissionNeeded: () -> Unit = {}
+
+    /**
+     * Set to show these tasks instead of the device calendar. Taps then go to
+     * [onTaskDayClick] and long presses to [onTaskDayLongClick], with the yyyy-MM-dd day.
+     */
+    var tasks: List<Task>? = null
+        set(value) {
+            field = value
+            loadEvents()
+        }
+    var onTaskDayClick: (String) -> Unit = {}
+    var onTaskDayLongClick: (String) -> Unit = {}
 
     private class Event(
         val id: Long,
@@ -89,7 +103,8 @@ class MonthCalendarView(context: Context) : View(context) {
         }
 
         override fun onLongPress(e: MotionEvent) {
-            dayAt(e.x, e.y)?.let { addEvent(it) }
+            val day = dayAt(e.x, e.y) ?: return
+            if (tasks != null) onTaskDayLongClick(TaskDates.format(day.time)) else addEvent(day)
         }
     })
 
@@ -115,7 +130,7 @@ class MonthCalendarView(context: Context) : View(context) {
         headerRect.set(pad, pad, prevRect.left, pad + headerHeight)
         val title = SimpleDateFormat("LLLL yyyy", Locale.getDefault()).format(month.time)
         canvas.drawText(title, pad, headerCenter + textCenterOffset(titlePaint), titlePaint)
-        if (!hasPermission()) {
+        if (tasks == null && !hasPermission()) {
             val hintLeft = pad + titlePaint.measureText(title) + dp(12f)
             val hint = TextUtils.ellipsize(
                 context.getString(R.string.calendar_show_events), hintPaint,
@@ -208,7 +223,8 @@ class MonthCalendarView(context: Context) : View(context) {
         when {
             prevRect.contains(x, y) -> changeMonth(-1)
             nextRect.contains(x, y) -> changeMonth(1)
-            headerRect.contains(x, y) -> if (hasPermission()) showCurrentMonth() else onPermissionNeeded()
+            headerRect.contains(x, y) -> if (tasks != null || hasPermission()) showCurrentMonth() else onPermissionNeeded()
+            tasks != null -> dayAt(x, y)?.let { onTaskDayClick(TaskDates.format(it.time)) }
             else -> {
                 val event = eventRects.firstOrNull { it.first.contains(x, y) }?.second
                 if (event != null) openEvent(event)
@@ -251,6 +267,13 @@ class MonthCalendarView(context: Context) : View(context) {
     private fun loadEvents() {
         val generation = ++loadGeneration
         invalidate()
+        tasks?.let { list ->
+            eventsByDay = list.mapNotNull { task ->
+                val day = TaskDates.parse(task.date) ?: return@mapNotNull null
+                julianDay(Calendar.getInstance().apply { time = day }) to taskEvent(task)
+            }.groupBy({ it.first }, { it.second })
+            return
+        }
         if (!hasPermission()) {
             eventsByDay = emptyMap()
             return
@@ -276,6 +299,10 @@ class MonthCalendarView(context: Context) : View(context) {
             }
         }.start()
     }
+
+    // Checked tasks keep their place with a check mark
+    private fun taskEvent(task: Task) =
+        Event(0, (if (task.done) "✓ " else "") + task.title, textColor, 0, 0, true, 0, 0)
 
     private fun queryEvents(resolver: ContentResolver, begin: Long, end: Long): List<Event> {
         val projection = arrayOf(
