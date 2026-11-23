@@ -56,6 +56,9 @@ class MonthCalendarView(context: Context) : View(context) {
     var onTaskDayLongClick: (String) -> Unit = {}
     var onTaskMoved: (taskId: String, date: String) -> Unit = { _, _ -> }
 
+    // Tasks show five weeks from the week before this one; the arrows move it a week at a time
+    private var weekOffset = 0
+
     // The task being dragged to another day, and where the finger is
     private var dragging: Event? = null
     private var dragX = 0f
@@ -183,7 +186,8 @@ class MonthCalendarView(context: Context) : View(context) {
         nextRect.set(width - pad - arrowWidth, pad, width - pad, pad + headerHeight)
         prevRect.set(nextRect.left - arrowWidth, pad, nextRect.left, pad + headerHeight)
         headerRect.set(pad, pad, prevRect.left, pad + headerHeight)
-        val title = SimpleDateFormat("LLLL yyyy", Locale.getDefault()).format(month.time)
+        val title = if (tasks == null) SimpleDateFormat("LLLL yyyy", Locale.getDefault()).format(month.time)
+        else weeksTitle()
         canvas.drawText(title, pad, headerCenter + textCenterOffset(titlePaint), titlePaint)
         if (tasks == null && !hasPermission()) {
             val hintLeft = pad + titlePaint.measureText(title) + dp(12f)
@@ -225,7 +229,7 @@ class MonthCalendarView(context: Context) : View(context) {
             val top = gridTop + cellHeight * (index / 7)
             val cell = RectF(left, top, left + cellWidth, top + cellHeight)
             dayRects += cell to (day.clone() as Calendar)
-            drawDay(canvas, cell, day, today, day.get(Calendar.MONTH) == currentMonth)
+            drawDay(canvas, cell, day, today, tasks != null || day.get(Calendar.MONTH) == currentMonth)
             day.add(Calendar.DAY_OF_MONTH, 1)
         }
         drawDrag(canvas)
@@ -293,22 +297,44 @@ class MonthCalendarView(context: Context) : View(context) {
     private fun dayAt(x: Float, y: Float): Calendar? = dayRects.firstOrNull { it.first.contains(x, y) }?.second
 
     private fun changeMonth(offset: Int) {
-        month.add(Calendar.MONTH, offset)
+        if (tasks != null) weekOffset += offset else month.add(Calendar.MONTH, offset)
         loadEvents()
     }
 
     private fun showCurrentMonth() {
+        weekOffset = 0
         val now = Calendar.getInstance()
         month.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), 1)
         loadEvents()
     }
 
+    // "November 2026", or "Nov. – Dez. 2026" when the five weeks span two months
+    private fun weeksTitle(): String {
+        val first = gridStart().time
+        val last = gridStart().apply { add(Calendar.DAY_OF_MONTH, rowCount() * 7 - 1) }.time
+        val month = SimpleDateFormat("LLLL yyyy", Locale.getDefault())
+        if (month.format(first) == month.format(last)) return month.format(first)
+        return SimpleDateFormat("LLL", Locale.getDefault()).format(first) + " – " +
+                SimpleDateFormat("LLL yyyy", Locale.getDefault()).format(last)
+    }
+
     private fun leadingDays() = (month.get(Calendar.DAY_OF_WEEK) - month.firstDayOfWeek + 7) % 7
 
-    private fun rowCount() = ceil((leadingDays() + month.getActualMaximum(Calendar.DAY_OF_MONTH)) / 7f).toInt()
+    private fun rowCount() =
+        if (tasks != null) TASK_WEEKS
+        else ceil((leadingDays() + month.getActualMaximum(Calendar.DAY_OF_MONTH)) / 7f).toInt()
 
-    private fun gridStart(): Calendar = (month.clone() as Calendar).apply {
-        add(Calendar.DAY_OF_MONTH, -leadingDays())
+    private fun gridStart(): Calendar {
+        if (tasks == null) return (month.clone() as Calendar).apply { add(Calendar.DAY_OF_MONTH, -leadingDays()) }
+        // Start of last week, so this week is always the second row
+        return Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            add(Calendar.DAY_OF_MONTH, -((get(Calendar.DAY_OF_WEEK) - firstDayOfWeek + 7) % 7))
+            add(Calendar.DAY_OF_MONTH, 7 * (weekOffset - 1))
+        }
     }
 
     // Same day numbering as CalendarContract.Instances.START_DAY and END_DAY
@@ -459,6 +485,7 @@ class MonthCalendarView(context: Context) : View(context) {
         /** Kept among the widget ids; real app widget ids are positive. */
         const val WIDGET_ID = -1
 
+        private const val TASK_WEEKS = 5
         private const val SAMSUNG_CALENDAR = "com.samsung.android.calendar"
         private const val DAY_MS = 86_400_000L
         private const val HOUR_MS = 3_600_000L
