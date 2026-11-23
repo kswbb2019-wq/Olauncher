@@ -41,6 +41,8 @@ class TasksFragment : BaseFragment() {
     private lateinit var prefs: Prefs
     private var theme = LauncherTheme.DEFAULT
     private var scrolledToToday = false
+    private var calendar: MonthCalendarView? = null
+    private val dateHeaders = sortedMapOf<String, View>()
 
     private var _binding: FragmentTasksBinding? = null
     private val binding get() = _binding!!
@@ -55,6 +57,17 @@ class TasksFragment : BaseFragment() {
         prefs = Prefs(requireContext())
         theme = prefs.launcherTheme
         binding.tasksAdd.setOnClickListener { showTaskDialog(null) }
+
+        // The same tasks as a month calendar: a day opens it in the list, a long press adds a task there
+        calendar = MonthCalendarView(requireContext()).apply {
+            onTaskDayClick = { date -> showList(date) }
+            onTaskDayLongClick = { date -> showTaskDialog(null, date) }
+        }
+        binding.tasksCalendar.addView(calendar, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        binding.tasksRoot.onSwipeLeft = { showCalendar() }
+        binding.tasksRoot.onSwipeRight = { showList(null) }
+        binding.tasksListTab.setOnClickListener { showList(null) }
+        binding.tasksCalendarTab.setOnClickListener { showCalendar() }
         TaskRepository.changes.observe(viewLifecycleOwner) { populateTasks() }
     }
 
@@ -70,6 +83,8 @@ class TasksFragment : BaseFragment() {
         var todayHeader: View? = null
         // Launcher edits stay where they were added until the next sync sorts the file
         val tasks = TaskRepository.visible(requireContext()).sortedWith(TaskMerge.ORDER)
+        calendar?.tasks = tasks
+        dateHeaders.clear()
         if (tasks.isEmpty()) content.addView(smallText(getString(R.string.tasks_empty)))
         tasks.groupBy { it.date }.forEach { (date, dayTasks) ->
             val header = smallText(dateHeading(date, today)).apply {
@@ -77,6 +92,7 @@ class TasksFragment : BaseFragment() {
                 setPadding(0, 24.dpToPx(), 0, 4.dpToPx())
             }
             content.addView(header)
+            dateHeaders[date] = header
             // Jump to today, or else to the first day after it
             if (todayHeader == null && date >= today) todayHeader = header
             dayTasks.forEach { content.addView(taskRow(it)) }
@@ -86,6 +102,23 @@ class TasksFragment : BaseFragment() {
             scrolledToToday = true
             todayHeader?.let { header -> binding.tasksScroll.post { binding.tasksScroll.scrollTo(0, header.top) } }
         }
+    }
+
+    private fun showCalendar() {
+        binding.tasksScroll.visibility = View.GONE
+        binding.tasksCalendar.visibility = View.VISIBLE
+        binding.tasksListTab.alpha = 0.4f
+        binding.tasksCalendarTab.alpha = 1f
+    }
+
+    /** Back to the list, scrolled to [date] or the first later day with tasks when given. */
+    private fun showList(date: String?) {
+        binding.tasksCalendar.visibility = View.GONE
+        binding.tasksScroll.visibility = View.VISIBLE
+        binding.tasksListTab.alpha = 1f
+        binding.tasksCalendarTab.alpha = 0.4f
+        val header = date?.let { dateHeaders.tailMap(it).values.firstOrNull() } ?: return
+        binding.tasksScroll.post { binding.tasksScroll.scrollTo(0, header.top) }
     }
 
     private fun dateHeading(date: String, today: String): String {
@@ -134,9 +167,9 @@ class TasksFragment : BaseFragment() {
         }
     }
 
-    /** Adds a task when [task] is null, otherwise edits its title, date, time and note. */
-    private fun showTaskDialog(task: Task?) {
-        var date = task?.date ?: TaskDates.today()
+    /** Adds a task (on [newDate], or today) when [task] is null, otherwise edits its title, date, time and note. */
+    private fun showTaskDialog(task: Task?, newDate: String? = null) {
+        var date = task?.date ?: newDate ?: TaskDates.today()
         var time = task?.time
         var fields: DialogTaskEditBinding? = null
 
@@ -196,6 +229,7 @@ class TasksFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        calendar = null
         _binding = null
     }
 
