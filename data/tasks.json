@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-24T11:47:50.819Z",
+  "updatedAt": "2026-11-24T15:14:36.022Z",
   "tasks": [
     { "id": "2026-11-16-hwaktong-1", "date": "2026-11-16", "time": null, "title": "확통 1h (1/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-16T15:09:45.047Z" },
     { "id": "2026-11-16-hwaktong-2", "date": "2026-11-16", "time": null, "title": "확통 1h (2/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-16T15:09:45.386Z" },
@@ -19,7 +19,7 @@
     { "id": "2026-11-24-mijeok2-1", "date": "2026-11-24", "time": null, "title": "미적2 1h (1/2)", "note": "학원 과제", "tag": "2주전", "done": true, "deleted": false, "updatedAt": "2026-11-24T10:18:53.412Z" },
     { "id": "2026-11-24-mijeok2-2", "date": "2026-11-24", "time": null, "title": "미적2 1h (2/2)", "note": "학원 과제", "tag": "2주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
     { "id": "2026-11-24-gyeongje-1", "date": "2026-11-24", "time": null, "title": "경제 1h", "note": "개념 + 문제 조금", "tag": "2주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
-    { "id": "2026-11-21-hwaktong-1", "date": "2026-11-25", "time": null, "title": "확통 1h (1/2)", "note": "학원 과제", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-23T00:57:15.655Z" },
+    { "id": "2026-11-21-hwaktong-1", "date": "2026-11-25", "time": null, "title": "확통 1h (1/2)", "note": "학원 과제", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T15:13:05.465Z" },
     { "id": "2026-11-18-yunsa-1", "date": "2026-11-25", "time": null, "title": "윤사 1h", "note": "개념 외우기", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-20T05:21:15.384Z" },
     { "id": "2026-11-25-yeongeo-1", "date": "2026-11-25", "time": null, "title": "영어 1h (1/2)", "note": "학원 과제", "tag": "2주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
     { "id": "2026-11-25-yeongeo-2", "date": "2026-11-25", "time": null, "title": "영어 1h (2/2)", "note": "학원 과제", "tag": "2주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
