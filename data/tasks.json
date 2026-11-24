@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-24T23:12:31.000Z",
+  "updatedAt": "2026-11-24T23:16:38.000Z",
   "tasks": [
     { "id": "2026-11-16-hwaktong-1", "date": "2026-11-16", "time": null, "title": "확통 1h (1/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-16T15:09:45.047Z" },
     { "id": "2026-11-16-hwaktong-2", "date": "2026-11-16", "time": null, "title": "확통 1h (2/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-16T15:09:45.386Z" },
@@ -43,7 +43,7 @@
     { "id": "2026-11-22-yebi-1", "date": "2026-11-30", "time": null, "title": "윤사 1h", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T23:12:31.000Z" },
     { "id": "2026-11-29-hwabeop-1", "date": "2026-11-29", "time": null, "title": "화법 1h", "note": "학원 과제", "tag": "2주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
     { "id": "2026-11-29-yebi-1", "date": "2026-12-04", "time": null, "title": "사문 1h", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T23:12:31.000Z" },
-    { "id": "2026-11-29-yebi-2", "date": "2026-12-04", "time": null, "title": "윤사 1h", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T23:12:31.000Z" },
+    { "id": "2026-11-29-yebi-2", "date": "2026-12-04", "time": null, "title": "경제 1h", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T23:16:38.000Z" },
     { "id": "2026-11-30-gyeongje-1", "date": "2026-11-30", "time": null, "title": "경제 1h (1/2)", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
     { "id": "2026-11-30-gyeongje-2", "date": "2026-11-30", "time": null, "title": "경제 1h (2/2)", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
     { "id": "2026-11-30-hwabeop-1", "date": "2026-11-30", "time": null, "title": "화법 1h", "note": "학원 과제", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
@@ -64,6 +64,6 @@
     { "id": "2026-12-05-yebi-1", "date": "2026-12-05", "time": null, "title": "윤사 1h", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T23:12:31.000Z" },
     { "id": "2026-12-06-yunsa-1", "date": "2026-12-06", "time": null, "title": "윤사 1h", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
     { "id": "2026-12-06-hwabeop-1", "date": "2026-12-06", "time": null, "title": "화법 1h", "note": "학원 과제", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
-    { "id": "2026-12-06-yebi-1", "date": "2026-12-06", "time": null, "title": "사문 1h", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T23:12:31.000Z" }
+    { "id": "2026-12-06-yebi-1", "date": "2026-12-06", "time": null, "title": "경제 1h", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T23:16:38.000Z" }
   ]
 }
