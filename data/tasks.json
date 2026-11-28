@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-28T04:47:20.228Z",
+  "updatedAt": "2026-11-28T08:51:35.444Z",
   "tasks": [
     { "id": "2026-11-16-hwaktong-1", "date": "2026-11-16", "time": null, "title": "확통 1h (1/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-16T15:09:45.047Z" },
     { "id": "2026-11-16-hwaktong-2", "date": "2026-11-16", "time": null, "title": "확통 1h (2/2)", "note": "학원 과제", "tag": "3주전", "done": true, "deleted": false, "updatedAt": "2026-11-16T15:09:45.386Z" },
@@ -28,7 +28,7 @@
     { "id": "2026-11-22-gyeongje-1", "date": "2026-11-28", "time": null, "title": "경제 1h", "note": "개념 외우기", "tag": "3주전", "done": false, "deleted": false, "updatedAt": "2026-11-28T01:50:38.728Z" },
     { "id": "2026-11-26-hwaktong-1", "date": "2026-11-28", "time": null, "title": "윤사 1h", "note": "개념 + 문제 조금", "tag": "2주전", "done": true, "deleted": false, "updatedAt": "2026-11-26T11:40:40.173Z" },
     { "id": "2026-11-28-hwabeop-1", "date": "2026-11-28", "time": null, "title": "화법 1h", "note": "학원 과제", "tag": "2주전", "done": false, "deleted": false, "updatedAt": "2026-11-16T12:06:27.000Z" },
-    { "id": "2026-11-28-gyeongje-1", "date": "2026-11-28", "time": null, "title": "경제 1h", "note": "개념 + 문제 조금", "tag": "2주전", "done": false, "deleted": false, "updatedAt": "2026-11-24T23:12:31.000Z" },
+    { "id": "2026-11-28-gyeongje-1", "date": "2026-11-28", "time": null, "title": "경제 1h", "note": "개념 + 문제 조금", "tag": "2주전", "done": true, "deleted": false, "updatedAt": "2026-11-28T07:28:46.971Z" },
     { "id": "2026-11-19-yebi-1", "date": "2026-11-28", "time": null, "title": "사문 1h", "note": "개념 + 문제 조금", "tag": "2주전", "done": true, "deleted": false, "updatedAt": "2026-11-28T04:45:31.351Z" },
     { "id": "2026-11-29-hwabeop-1", "date": "2026-11-28", "time": null, "title": "화법 1h", "note": "학원 과제", "tag": "2주전", "done": false, "deleted": false, "updatedAt": "2026-11-28T04:45:43.588Z" },
     { "id": "2026-12-01-samun-1", "date": "2026-11-28", "time": null, "title": "사문 1h (1/2)", "note": "문제풀이 후 마무리 암기", "tag": "1주전", "done": true, "deleted": false, "updatedAt": "2026-11-28T04:45:36.502Z" },
